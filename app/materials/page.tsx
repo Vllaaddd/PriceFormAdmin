@@ -28,7 +28,7 @@ export default function Home(){
 
 
   return(
-    <div className='min-h-screen flex items-start justify-center bg-gray-200 p-4 pb-10'>
+    <div className='min-h-screen flex items-start justify-center bg-gray-100 p-4 pb-10'>
       <div className="p-4 text-center">
         {materialProperties?.length > 0 ? (
           <MaterialPropertiesTable materials={materialProperties as any} title='Material properties' />

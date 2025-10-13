@@ -47,7 +47,7 @@ export const MaterialPropertiesTable: FC<Props> = ({ materials, title }) => {
                             <tr
                                 key={material.id}
                                 className={`transition-colors ${
-                                index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                                index % 2 === 0 ? "bg-white" : "bg-gray-100"
                                 } hover:bg-blue-50`}
                             >
                                 <td className="px-5 py-3 text-center font-medium text-gray-900">

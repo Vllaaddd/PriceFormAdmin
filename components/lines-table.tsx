@@ -74,7 +74,7 @@ export const LinesTable: FC<Props> = ({ lines, title }) => {
                                 <tr
                                     key={line.id}
                                     className={`transition-colors ${
-                                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                                        index % 2 === 0 ? "bg-white" : "bg-gray-100"
                                     } hover:bg-blue-50`}
                                 >
                                     <td className="px-5 py-3 font-medium">{line.materialType}</td>
