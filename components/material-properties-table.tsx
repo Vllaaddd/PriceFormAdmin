@@ -30,7 +30,7 @@ export const MaterialPropertiesTable: FC<Props> = ({ materials, title }) => {
     return(
         <div className="pb-10">
             <h1 className="text-2xl font-semibold mb-6 text-gray-800">
-                Material properties
+                {title}
             </h1>
 
             <div className="overflow-x-auto shadow-md rounded-2xl border border-gray-200 bg-white w-[720px]">

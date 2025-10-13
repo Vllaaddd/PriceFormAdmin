@@ -27,8 +27,12 @@ export const SidePanel: FC = () => {
                     <Title active={pathname === '/materials'} title="Materials" />
                 </Link>
 
-                <Link href={'/skillet'}>
-                    <Title active={pathname === '/skillet'} title="Skillet" />
+                <Link href={'/skillets'}>
+                    <Title active={pathname === '/skillets'} title="Skillets" />
+                </Link>
+
+                <Link href={'/cores'}>
+                    <Title active={pathname === '/cores'} title="Cores" />
                 </Link>
 
                 <Link href={'/calculations'}>

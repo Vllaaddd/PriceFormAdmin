@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Line } from '@prisma/client';
 import { Api } from "@/services/api-client";
-import { LineTable } from "@/components/line-table";
+import { LinesTable } from "@/components/lines-table";
 
 export default function Home(){
 
@@ -77,25 +77,25 @@ export default function Home(){
             <div className="p-4 text-center">
 
                 {mainLines?.length > 0 ? (
-                    <LineTable lines={mainLines} title='Av speed main lines' />
+                    <LinesTable lines={mainLines} title='Av speed main lines' />
                 ) : (
                     <p className='pb-5'>Loading main lines...</p>
                 )}
 
                 {bpLines?.length > 0 ? (
-                    <LineTable lines={bpLines} title='Av speed bp lines' />
+                    <LinesTable lines={bpLines} title='Av speed bp lines' />
                 ) : (
                     <p className='pb-5'>Loading bp lines...</p>
                 )}
 
                 {speedLine1?.length > 0 ? (
-                    <LineTable lines={speedLine1} title='Av speed line 4,5 and 4,6' />
+                    <LinesTable lines={speedLine1} title='Av speed line 4,5 and 4,6' />
                 ) : (
                     <p className='pb-5'>Loading speed line 4,5 and 4,6...</p>
                 )}
 
                 {speedLine2?.length > 0 ? (
-                    <LineTable lines={speedLine2} title='Av speed line 6,4' />
+                    <LinesTable lines={speedLine2} title='Av speed line 6,4' />
                 ) : (
                     <p className='pb-5'>Loading speed line 6,4...</p>
                 )}

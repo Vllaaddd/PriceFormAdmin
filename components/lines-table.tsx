@@ -20,7 +20,7 @@ interface Props{
     title: string
 }
 
-export const LineTable: FC<Props> = ({ lines, title }) => {
+export const LinesTable: FC<Props> = ({ lines, title }) => {
 
     const [rollLengths, setRollLengths] = useState<Record<number, string>>({});
 
