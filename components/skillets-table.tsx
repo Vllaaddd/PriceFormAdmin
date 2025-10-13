@@ -15,14 +15,12 @@ type Skillet = {
 
 interface Props{
     skillets: Skillet[];
-    title: string;
 }
 
-export const SkilletsTable: FC<Props> = ({ skillets, title }) => {
+export const SkilletsTable: FC<Props> = ({ skillets }) => {
 
     return(
         <div className="mb-16">
-            <h1 className="text-2xl font-semibold mb-6 text-gray-800">{title}</h1>
             <div className="overflow-x-auto shadow-md rounded-2xl border border-gray-200 bg-white">
                 <table className="min-w-full text-sm text-left text-gray-700">
                     <thead className="bg-gray-50 text-gray-900 text-sm uppercase font-medium">

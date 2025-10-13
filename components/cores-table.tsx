@@ -11,16 +11,12 @@ type Core = {
 
 interface Props{
     cores: Core[];
-    title: string
 }
 
-export const CoresTable: FC<Props> = ({ cores, title }) => {
+export const CoresTable: FC<Props> = ({ cores }) => {
 
     return(
         <div className="pb-10">
-            <h1 className="text-2xl font-semibold mb-6 text-gray-800">
-                {title}
-            </h1>
 
             <div className="overflow-x-auto shadow-md rounded-2xl border border-gray-200 bg-white w-[720px]">
                 <table className="min-w-full text-sm text-left text-gray-700">

@@ -19,11 +19,17 @@ export default function Home(){
     }, []);
 
     return(
-        <div className='min-h-screen flex items-start justify-center bg-gray-100 p-4 pb-10'>
+        <div className='min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 py-10 px-6'>
             <div className="p-4 text-center">
 
+                <div className="text-center mb-8">
+                    <h1 className="text-4xl font-bold text-gray-900 mb-3 tracking-tight">
+                        Skillets Overview
+                    </h1>
+                </div>
+
                 {skillets?.length > 0 ? (
-                    <SkilletsTable skillets={skillets} title='Skillets' />
+                    <SkilletsTable skillets={skillets} />
                 ) : (
                     <p className='pb-5'>Loading skillets...</p>
                 )}

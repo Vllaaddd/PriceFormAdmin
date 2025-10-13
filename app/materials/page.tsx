@@ -28,10 +28,17 @@ export default function Home(){
 
 
   return(
-    <div className='min-h-screen flex items-start justify-center bg-gray-100 p-4 pb-10'>
-      <div className="p-4 text-center">
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 py-10 px-6">
+      <div className="max-w-6xl mx-auto space-y-10 flex flex-col items-center">
+
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-3 tracking-tight">
+            Material Properties
+          </h1>
+        </div>
+
         {materialProperties?.length > 0 ? (
-          <MaterialPropertiesTable materials={materialProperties as any} title='Material properties' />
+          <MaterialPropertiesTable materials={materialProperties as any} />
         ) : (
           <p className='pb-5'>Loading material properties...</p>
         )}

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Line } from '@prisma/client';
 import { Api } from "@/services/api-client";
 import { LinesTable } from "@/components/lines-table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LoadingCard } from "@/components/loading-card";
 
 export default function Home(){
 
@@ -72,35 +74,82 @@ export default function Home(){
         fetchData();
     }, []);
 
-    return(
-        <div className='min-h-screen flex items-start justify-center bg-gray-100 p-4 pb-10'>
-            <div className="p-4 text-center">
-
-                {mainLines?.length > 0 ? (
-                    <LinesTable lines={mainLines} title='Av speed main lines' />
-                ) : (
-                    <p className='pb-5'>Loading main lines...</p>
-                )}
-
-                {bpLines?.length > 0 ? (
-                    <LinesTable lines={bpLines} title='Av speed bp lines' />
-                ) : (
-                    <p className='pb-5'>Loading bp lines...</p>
-                )}
-
-                {speedLine1?.length > 0 ? (
-                    <LinesTable lines={speedLine1} title='Av speed line 4,5 and 4,6' />
-                ) : (
-                    <p className='pb-5'>Loading speed line 4,5 and 4,6...</p>
-                )}
-
-                {speedLine2?.length > 0 ? (
-                    <LinesTable lines={speedLine2} title='Av speed line 6,4' />
-                ) : (
-                    <p className='pb-5'>Loading speed line 6,4...</p>
-                )}
-
-            </div>
+    return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 py-10 px-6">
+      <div className="max-w-7xl mx-auto space-y-10">
+        
+        <div className="text-center mb-10">
+            <h1 className="text-4xl font-bold text-gray-900 mb-3 tracking-tight">
+                Lines Dashboard
+            </h1>
         </div>
-    )
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="bg-white shadow-md hover:shadow-lg transition-all duration-300">
+                <CardHeader>
+                    <CardTitle>Total Lines</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-3xl font-bold text-blue-600">{lines.length}</p>
+                </CardContent>
+            </Card>
+
+            <Card className="bg-white shadow-md hover:shadow-lg transition-all duration-300">
+                <CardHeader>
+                    <CardTitle>Main Lines</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-3xl font-bold text-green-600">{mainLines.length}</p>
+                </CardContent>
+            </Card>
+
+            <Card className="bg-white shadow-md hover:shadow-lg transition-all duration-300">
+                <CardHeader>
+                    <CardTitle>BP Lines</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-3xl font-bold text-purple-600">{bpLines.length}</p>
+                </CardContent>
+            </Card>
+
+            <Card className="bg-white shadow-md hover:shadow-lg transition-all duration-300">
+                <CardHeader>
+                    <CardTitle>Speed Lines</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-3xl font-bold text-orange-600">
+                        {speedLine1.length + speedLine2.length}
+                    </p>
+                </CardContent>
+            </Card>
+        </div>
+
+        <div className="space-y-16">
+            {mainLines?.length > 0 ? (
+                <LinesTable lines={mainLines} title="AV Speed Main Lines" />
+            ) : (
+                <LoadingCard text="Loading main lines..." />
+            )}
+
+            {bpLines?.length > 0 ? (
+                <LinesTable lines={bpLines} title="AV Speed BP Lines" />
+            ) : (
+                <LoadingCard text="Loading BP lines..." />
+            )}
+
+            {speedLine1?.length > 0 ? (
+                <LinesTable lines={speedLine1} title="AV Speed Line 4.5 and 4.6" />
+            ) : (
+                <LoadingCard text="Loading Speed 4.5 and 4.6..." />
+            )}
+
+            {speedLine2?.length > 0 ? (
+                <LinesTable lines={speedLine2} title="AV Speed Line 6.4" />
+            ) : (
+                <LoadingCard text="Loading Speed 6.4..." />
+            )}
+        </div>
+      </div>
+    </div>
+  );
 }
