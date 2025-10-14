@@ -44,18 +44,6 @@ export default function CalculationsPage() {
       });
   }
 
-  async function handleEdit(id: number, newData: Partial<Calculation>) {
-    try {
-      const updated = await Api.calculations.update(newData, id);
-      setCalculations((prev) =>
-        prev.map((c) => (c.id === id ? updated : c))
-      );
-      toast.success("Calculation updated!");
-    } catch (err) {
-      toast.error("Failed to update calculation.");
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 py-10 px-6">
       <div className="max-w-6xl mx-auto space-y-10">
