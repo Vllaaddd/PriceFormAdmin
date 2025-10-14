@@ -40,7 +40,9 @@ export default function DashboardPage() {
         const day = new Date(c.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
         map[day] = (map[day] || 0) + 1
       })
-      const dailyData = Object.entries(map).map(([day, count]) => ({ day, count }))
+      const dailyData = Object.entries(map).map(([day, count]) => ({ day, count })).sort(
+        (a, b) => new Date(a.day).getTime() - new Date(b.day).getTime()
+      )
 
       const materialData = Object.entries(materialMap).map(([name, value]) => ({ name, value }))
 

@@ -31,3 +31,15 @@ export const createCalculation = async (req: Partial<Calculation>): Promise<Calc
     return data
 
 }
+
+export const update = async (data: Partial<Calculation>, id: number): Promise<Calculation> => {
+    const res  = await axiosInstance.patch<Calculation>(`${ApiRoutes.CALCULATIONS}/${id}`, data)
+
+    return res.data
+}
+
+export const deleteCalculation = async (id: number): Promise<Calculation> => {
+    const { data }  = await axiosInstance.delete<Calculation>(`${ApiRoutes.CALCULATIONS}/${id}`)
+
+    return data
+}
