@@ -3,8 +3,8 @@ import { FC } from "react";
 import { Card, CardContent } from "./ui/card";
 
 interface Props{
-    title: string;
-    value: any;
+  title: string;
+  value: any;
 }
 
 export const StatCard: FC<Props> = ({ title, value }) => {
