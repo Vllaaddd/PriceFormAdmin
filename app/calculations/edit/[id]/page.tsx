@@ -206,9 +206,9 @@ export default function Home(){
                     <SelectField label="Roll type" value={form?.roll || ""} onChange={(e) => handleChange("roll", e.target.value)}>
                         <option value="">-- choose roll type --</option>
                         {rolls.map((r, i) => (
-                        <option key={i} value={r.name}>
-                            {r.name}
-                        </option>
+                            <option key={i} value={r.name}>
+                                {r.name}
+                            </option>
                         ))}
                     </SelectField>
 
@@ -218,7 +218,7 @@ export default function Home(){
                         <option value="">-- choose material --</option>
                         {selectedRoll.materials.map((m) => (
                             <option key={m.id} value={m.name}>
-                            {m.name}
+                                {m.name}
                             </option>
                         ))}
                         </SelectField>
@@ -233,31 +233,31 @@ export default function Home(){
                     >
                         <option value="">-- choose width --</option>
                         {selectedMaterial?.width?.map((w, i) => (
-                        <option key={i} value={w}>
-                            {w}
-                        </option>
+                            <option key={i} value={w}>
+                                {w}
+                            </option>
                         ))}
                     </SelectField>
 
                     {selectedMaterial?.name !== 'Baking paper' && (
                         <>
-                        {/* Товщина */}
-                        <SelectField
-                            label="Thickness (my)"
-                            value={form?.materialThickness || ""}
-                            onChange={(e) => handleChange("materialThickness", Number(e.target.value))}
-                            disabled={!selectedMaterial}
-                        >
-                            <option value="">-- choose thickness --</option>
-                            {selectedMaterial?.thickness?.map((t, i) => (
-                                <option key={i} value={t}>
-                                    {t}
-                                </option>
-                            ))}
-                        </SelectField>
+                            {/* Товщина */}
+                            <SelectField
+                                label="Thickness (my)"
+                                value={form?.materialThickness || ""}
+                                onChange={(e) => handleChange("materialThickness", Number(e.target.value))}
+                                disabled={!selectedMaterial}
+                            >
+                                <option value="">-- choose thickness --</option>
+                                {selectedMaterial?.thickness?.map((t, i) => (
+                                    <option key={i} value={t}>
+                                        {t}
+                                    </option>
+                                ))}
+                            </SelectField>
 
-                        {/* Довжина */}
-                        <InputField label="Length (m)" type="number" value={form?.materialLength || ""} onChange={(e) => handleChange("materialLength", Number(e.target.value))} />
+                            {/* Довжина */}
+                            <InputField label="Length (m)" type="number" value={form?.materialLength || ""} onChange={(e) => handleChange("materialLength", Number(e.target.value))} />
                         </>
                     )}
 
@@ -296,40 +296,40 @@ export default function Home(){
                     )}
                     { (form?.typeOfProduct === 'Consumer sheets' && form?.material === 'Baking paper') && (
                         <>
-                        {/* Sheet width */}
-                        <InputField
-                            label="Sheet width(m)"
-                            type="string"
-                            value={form?.sheetWidth || ""}
-                            onChange={(e) => handleChange("sheetWidth", e.target.value)}
-                        />
+                            {/* Sheet width */}
+                            <InputField
+                                label="Sheet width(m)"
+                                type="string"
+                                value={form?.sheetWidth || ""}
+                                onChange={(e) => handleChange("sheetWidth", e.target.value)}
+                            />
 
-                        {/* Sheet length */}
-                        <InputField
-                            label="Sheet length(m)"
-                            type="string"
-                            value={form?.sheetLength || ""}
-                            onChange={(e) => handleChange("sheetLength", e.target.value)}
-                        />
+                            {/* Sheet length */}
+                            <InputField
+                                label="Sheet length(m)"
+                                type="string"
+                                value={form?.sheetLength || ""}
+                                onChange={(e) => handleChange("sheetLength", e.target.value)}
+                            />
 
-                        {/* Sheet quantity */}
-                        <InputField
-                            label="Sheet quantity (max 30)"
-                            type="number"
-                            max={30}
-                            value={form?.sheetQuantity || ""}
-                            onChange={(e) => handleChange("sheetQuantity", Number(e.target.value))}
-                        />
+                            {/* Sheet quantity */}
+                            <InputField
+                                label="Sheet quantity (max 30)"
+                                type="number"
+                                max={30}
+                                value={form?.sheetQuantity || ""}
+                                onChange={(e) => handleChange("sheetQuantity", Number(e.target.value))}
+                            />
                         </>
                     )}
                     {(form?.typeOfProduct === 'Consumer roll' || form?.typeOfProduct === 'Catering roll'  && form?.material === 'Baking paper') && (
                         <>
-                        {/* Roll length */}
-                        <InputField
-                            label="Roll length(m)"
-                            type="string" value={form?.rollLength || ""}
-                            onChange={(e) => handleChange("rollLength", e.target.value)}
-                        />
+                            {/* Roll length */}
+                            <InputField
+                                label="Roll length(m)"
+                                type="string" value={form?.rollLength || ""}
+                                onChange={(e) => handleChange("rollLength", e.target.value)}
+                            />
                         </>
                     )}
 
@@ -342,9 +342,9 @@ export default function Home(){
                     >
                         <option value="">-- choose color --</option>
                         {selectedMaterial?.color?.map((c, i) => (
-                        <option key={i} value={c}>
-                            {c}
-                        </option>
+                            <option key={i} value={c}>
+                                {c}
+                            </option>
                         ))}
                     </SelectField>
 
@@ -357,9 +357,9 @@ export default function Home(){
                     >
                         <option value="">-- choose other properties --</option>
                         {selectedMaterial?.otherProperties?.map((o, i) => (
-                        <option key={i} value={o}>
-                            {o}
-                        </option>
+                            <option key={i} value={o}>
+                                {o}
+                            </option>
                         ))}
                     </SelectField>
 
@@ -367,21 +367,21 @@ export default function Home(){
                     <SelectField label="Skillet format" value={form?.skilletFormat || ""} onChange={(e) => handleChange("skilletFormat", String(e.target.value))}>
                         <option value="">-- choose skillet form?at --</option>
                         {(() => {
-                        let formats: string[] = skillet.format;
+                            let formats: string[] = skillet.format;
 
-                        if (selectedRoll?.name === "BP") {
-                            formats = skillet.format.slice(4, 8);
-                        } else if (selectedRoll?.name === "Catering") {
-                            formats = skillet.format.slice(7, 9);
-                        } else {
-                            formats = skillet.format.slice(0, 4);
-                        }
+                            if (selectedRoll?.name === "BP") {
+                                formats = skillet.format.slice(4, 8);
+                            } else if (selectedRoll?.name === "Catering") {
+                                formats = skillet.format.slice(7, 9);
+                            } else {
+                                formats = skillet.format.slice(0, 4);
+                            }
 
-                        return formats.map((f, i) => (
-                            <option key={i} value={f}>
-                            {f}
-                            </option>
-                        ));
+                            return formats.map((f, i) => (
+                                <option key={i} value={f}>
+                                    {f}
+                                </option>
+                            ));
                         })()}
                     </SelectField>
 
@@ -399,35 +399,35 @@ export default function Home(){
                             ? [skillet.knife[0], ...skillet.knife.slice(-2)]
                             : skillet.knife.slice(0, 5)
                         ).map((k, i) => (
-                        <option key={i} value={k}>
-                            {k}
-                        </option>
+                            <option key={i} value={k}>
+                                {k}
+                            </option>
                         ))}
                     </SelectField>
 
                     {selectedRoll?.name === "Catering" ?
                         <>
-                        {/* Lochstanzlinge */}
-                            <SelectField label="Lochstanzlinge" value={form?.lochstanzlinge || ""} onChange={(e) => handleChange("lochstanzlinge", e.target.value)}>
-                            <option value="">-- choose lochstanzlinge --</option>
-                            {lochstanzlinge.map((l, i) => (
-                                <option key={i} value={l}>
-                                {l}
-                                </option>
-                            ))}
-                            </SelectField>
+                            {/* Lochstanzlinge */}
+                                <SelectField label="Lochstanzlinge" value={form?.lochstanzlinge || ""} onChange={(e) => handleChange("lochstanzlinge", e.target.value)}>
+                                <option value="">-- choose lochstanzlinge --</option>
+                                {lochstanzlinge.map((l, i) => (
+                                    <option key={i} value={l}>
+                                        {l}
+                                    </option>
+                                ))}
+                                </SelectField>
                         </>
                     : (
                         <>
-                        {/* Skillet density */}
-                        <SelectField label="Skillet density" value={form?.skilletDensity || ""} onChange={(e) => handleChange("skilletDensity", Number(e.target.value))}>
-                            <option value="">-- choose skillet density --</option>
-                            {skillet.density.map((d, i) => (
-                            <option key={i} value={d}>
-                                {d}
-                            </option>
-                            ))}
-                        </SelectField>
+                            {/* Skillet density */}
+                            <SelectField label="Skillet density" value={form?.skilletDensity || ""} onChange={(e) => handleChange("skilletDensity", Number(e.target.value))}>
+                                <option value="">-- choose skillet density --</option>
+                                {skillet.density.map((d, i) => (
+                                    <option key={i} value={d}>
+                                        {d}
+                                    </option>
+                                ))}
+                            </SelectField>
                         </>
                     )}
 
@@ -435,9 +435,9 @@ export default function Home(){
                     <SelectField label="Box type" value={form?.boxType || ""} onChange={(e) => handleChange("boxType", e.target.value)}>
                         <option value="">-- choose box type --</option>
                         {box.type.map((t, i) => (
-                        <option key={i} value={t}>
-                            {t}
-                        </option>
+                            <option key={i} value={t}>
+                                {t}
+                            </option>
                         ))}
                     </SelectField>
 
@@ -445,9 +445,9 @@ export default function Home(){
                     <SelectField label="Box color" value={form?.boxColor || ""} onChange={(e) => handleChange("boxColor", e.target.value)}>
                         <option value="">-- choose box color --</option>
                         {box.color.map((c, i) => (
-                        <option key={i} value={c}>
-                            {c}
-                        </option>
+                            <option key={i} value={c}>
+                                {c}
+                            </option>
                         ))}
                     </SelectField>
 
@@ -458,9 +458,9 @@ export default function Home(){
                             ? box.print.slice(0, -1)
                             : box.print
                         ).map((p, i) => (
-                        <option key={i} value={p}>
-                            {p}
-                        </option>
+                            <option key={i} value={p}>
+                                {p}
+                            </option>
                         ))}
                     </SelectField>
 
@@ -468,9 +468,9 @@ export default function Home(){
                     <SelectField label="Box execution" value={form?.boxExecution || ""} onChange={(e) => handleChange("boxExecution", e.target.value)}>
                         <option value="">-- choose box execution --</option>
                         {box.execution.map((ex, i) => (
-                        <option key={i} value={ex}>
-                            {ex}
-                        </option>
+                            <option key={i} value={ex}>
+                                {ex}
+                            </option>
                         ))}
                     </SelectField>
 
@@ -493,8 +493,8 @@ export default function Home(){
                     {/* Total order in pallets */}
                     {form?.totalOrderInPallets !== undefined && (
                         <div className="flex items-center justify-between gap-4 mt-2">
-                        <p>Total order in pallets</p>
-                        <p>{form?.totalOrderInPallets}</p>
+                            <p>Total order in pallets</p>
+                            <p>{form?.totalOrderInPallets}</p>
                         </div>
                     )}
 
@@ -505,9 +505,9 @@ export default function Home(){
                     <SelectField label="Delivery conditions" value={form?.deliveryConditions || ""} onChange={(e) => handleChange("deliveryConditions", e.target.value)}>
                         <option value="">-- choose delivery conditions --</option>
                         {delivery.type.map((d, i) => (
-                        <option key={i} value={d}>
-                            {d}
-                        </option>
+                            <option key={i} value={d}>
+                                {d}
+                            </option>
                         ))}
                     </SelectField>
 
