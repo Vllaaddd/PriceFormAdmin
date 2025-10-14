@@ -1,3 +1,5 @@
+"use client";
+
 import { Api } from "@/services/api-client";
 import { FC, useEffect, useState } from "react";
 
@@ -6,47 +8,44 @@ type Material = {
     material: string;
     density?: string;
     costPerKg: string;
-}
+};
 
-interface Props{
+interface Props {
     materials: Material[];
     title: string;
 }
 
 export const MaterialPropertiesTable: FC<Props> = ({ materials, title }) => {
-
     const [costPerKg, setCostPerKg] = useState<Record<number, string>>({});
-    const [sortedMaterials, setSortedMaterials] = useState<Material[]>([])
+    const [sortedMaterials, setSortedMaterials] = useState<Material[]>([]);
 
     useEffect(() => {
-        setSortedMaterials(materials.sort((a, b) => {
-            if (a.material === "Alu") return -1;
-            if (b.material === "Alu") return 1;
-            if (a.material === "PE") return -1;
-            if (b.material === "PE") return 1;
-            if (a.material === "PVC") return -1;
-            if (b.material === "PVC") return 1;
-            return 0;
-        }))
-    }, [materials])
+        setSortedMaterials(
+            materials.sort((a, b) => {
+                if (a.material === "Alu") return -1;
+                if (b.material === "Alu") return 1;
+                if (a.material === "PE") return -1;
+                if (b.material === "PE") return 1;
+                if (a.material === "PVC") return -1;
+                if (b.material === "PVC") return 1;
+                return 0;
+            })
+        );
+    }, [materials]);
 
-    const handleCostPerKgChange = async (id: number, costPerKg: string) => {
-    
-        setCostPerKg((prev) => ({
-            ...prev,
-            [id]: costPerKg,
-        }));
-
-        await Api.periods.update(id, costPerKg);
+    const handleCostPerKgChange = async (id: number, cost: string) => {
+        setCostPerKg((prev) => ({ ...prev, [id]: cost }));
+        await Api.periods.update(id, cost);
     };
 
-    return(
+    return (
         <div className="pb-10">
-
-            <h1 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <span className="block w-1 h-6 bg-blue-500 rounded-full"></span>
-                {title}
-            </h1>
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
+                    <span className="block w-1 h-6 bg-blue-500 rounded-full"></span>
+                    {title}
+                </h1>
+            </div>
 
             <div className="overflow-x-auto shadow-md rounded-2xl border border-gray-200 bg-white w-[720px]">
                 <table className="min-w-full text-sm text-left text-gray-700">
@@ -68,21 +67,19 @@ export const MaterialPropertiesTable: FC<Props> = ({ materials, title }) => {
                                 <td className="px-5 py-3 text-center font-medium text-gray-900">
                                     {material.material}
                                 </td>
-                                {material.density ? (
-                                    <td className="px-5 py-3 text-center">{material.density}</td>
-                                ) : (
-                                    <td className="px-5 py-3 text-center">-</td>
-                                )}
+                                <td className="px-5 py-3 text-center">
+                                    {material.density || "-"}
+                                </td>
                                 <td className="px-5 py-3 text-center">
                                     <input
                                         type="number"
                                         step="0.001"
                                         value={costPerKg[material.id] ?? material.costPerKg ?? ""}
                                         onChange={(e) =>
-                                        handleCostPerKgChange(
-                                            material.id,
-                                            e.target.value.replace(",", ".")
-                                        )
+                                            handleCostPerKgChange(
+                                                material.id,
+                                                e.target.value.replace(",", ".")
+                                            )
                                         }
                                         className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                                     />
@@ -93,5 +90,5 @@ export const MaterialPropertiesTable: FC<Props> = ({ materials, title }) => {
                 </table>
             </div>
         </div>
-    )
-}
+    );
+};

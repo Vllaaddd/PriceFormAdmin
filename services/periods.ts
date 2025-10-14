@@ -28,3 +28,11 @@ export const find = async (filters: {
 
     return data
 }
+
+export const create = async ( data: any ): Promise<Period> => {
+
+    const res = await axiosInstance.post(ApiRoutes.PERIODS, data)
+
+    return res.data
+
+}
