@@ -10,7 +10,7 @@ export const getAll = async (): Promise<Calculation[]> => {
 
 }
 
-export const getOneCalculation = async (id: string): Promise<Calculation> => {
+export const getOneCalculation = async (id: number): Promise<Calculation> => {
     const { data } = await axiosInstance.get<Calculation>(`${ApiRoutes.CALCULATIONS}/${id}`)
 
     return data
@@ -32,7 +32,7 @@ export const createCalculation = async (req: Partial<Calculation>): Promise<Calc
 
 }
 
-export const update = async (data: Partial<Calculation>, id: number): Promise<Calculation> => {
+export const update = async (id: number, data: Partial<Calculation>): Promise<Calculation> => {
     const res  = await axiosInstance.patch<Calculation>(`${ApiRoutes.CALCULATIONS}/${id}`, data)
 
     return res.data

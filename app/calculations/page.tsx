@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
+import Link from "next/link";
 
 export default function CalculationsPage() {
   const [calculations, setCalculations] = useState<Calculation[]>([]);
@@ -101,15 +102,15 @@ export default function CalculationsPage() {
                           {new Date(calc.createdAt).toLocaleDateString()}
                         </td>
                         <td className="p-3 flex items-center justify-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              handleEdit(calc.id, { material: prompt("New material:", calc.material) || calc.material })
-                            }
-                          >
-                            Edit
-                          </Button>
+                          <Link href={`/calculations/edit/${calc.id}`}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="cursor-pointer"
+                            >
+                              Edit
+                            </Button>
+                          </Link>
                           <Button
                             variant="destructive"
                             size="sm"

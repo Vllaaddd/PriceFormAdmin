@@ -19,14 +19,14 @@ export const getOne = async (id: string): Promise<Skillet> => {
 }
 
 export const find = async (filters: {
-    material: string;
-    lineType: string;
-    length: number;
+    format: number;
+    knife: string;
+    density: number;
 }): Promise<Skillet> => {
     const params = new URLSearchParams();
-    params.append("material", filters.material);
-    params.append("lineType", filters.lineType);
-    params.append("length", String(filters.length));
+    params.append("format", String(filters.format));
+    params.append("knife", filters.knife);
+    params.append("density", String(filters.density));
 
     const { data } = await axiosInstance.get<Skillet>(`${ApiRoutes.SKILLETS}/find?${params.toString()}`);
     return data;
