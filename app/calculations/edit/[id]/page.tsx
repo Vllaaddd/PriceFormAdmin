@@ -56,14 +56,17 @@ export default function Home(){
         let WVPerRoll = 0
         let materialName = undefined
 
-        const { material, materialWidth, materialThickness, materialLength, roll, rollLength, sheetLength, sheetWidth, sheetQuantity, typeOfProduct, skilletFormat, skilletKnife, skilletDensity, totalOrderInRolls  } = form
+        const { material, materialWidth, materialThickness, materialLength, roll, rollLength, sheetLength, sheetWidth, sheetQuantity, typeOfProduct, skilletFormat, skilletKnife, skilletDensity, totalOrderInRolls, period  } = form
         if(material === 'Baking paper'){
             materialName = 'BP'
         }else{
             materialName = material
         }
 
-        const { density, costPerKg } = await Api.properties.getOne(materialName || "")
+        const { density, costPerKg } = await Api.periods.find({
+            period: period || "",
+            material: material || "",
+        })
 
         if (materialWidth && materialThickness && materialLength && density && material !== 'BP') {
             const materialWeight = materialWidth * materialThickness * materialLength * Number(density) / 1000000
