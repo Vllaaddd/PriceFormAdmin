@@ -1,5 +1,5 @@
 import { Api } from "@/services/api-client";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 type Material = {
     id: number;
@@ -10,11 +10,25 @@ type Material = {
 
 interface Props{
     materials: Material[];
+    title: string;
 }
 
-export const MaterialPropertiesTable: FC<Props> = ({ materials }) => {
+export const MaterialPropertiesTable: FC<Props> = ({ materials, title }) => {
 
     const [costPerKg, setCostPerKg] = useState<Record<number, string>>({});
+    const [sortedMaterials, setSortedMaterials] = useState<Material[]>([])
+
+    useEffect(() => {
+        setSortedMaterials(materials.sort((a, b) => {
+            if (a.material === "Alu") return -1;
+            if (b.material === "Alu") return 1;
+            if (a.material === "PE") return -1;
+            if (b.material === "PE") return 1;
+            if (a.material === "PVC") return -1;
+            if (b.material === "PVC") return 1;
+            return 0;
+        }))
+    }, [materials])
 
     const handleCostPerKgChange = async (id: number, costPerKg: string) => {
     
@@ -23,11 +37,16 @@ export const MaterialPropertiesTable: FC<Props> = ({ materials }) => {
             [id]: costPerKg,
         }));
 
-        await Api.properties.update(id, { costPerKg });
+        await Api.periods.update(id, costPerKg);
     };
 
     return(
         <div className="pb-10">
+
+            <h1 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span className="block w-1 h-6 bg-blue-500 rounded-full"></span>
+                {title}
+            </h1>
 
             <div className="overflow-x-auto shadow-md rounded-2xl border border-gray-200 bg-white w-[720px]">
                 <table className="min-w-full text-sm text-left text-gray-700">
@@ -39,7 +58,7 @@ export const MaterialPropertiesTable: FC<Props> = ({ materials }) => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {materials?.map((material, index) => (
+                        {sortedMaterials?.map((material, index) => (
                             <tr
                                 key={material.id}
                                 className={`transition-colors ${

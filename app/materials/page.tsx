@@ -2,25 +2,43 @@
 
 import { MaterialPropertiesTable } from "@/components/material-properties-table";
 import { Api } from "@/services/api-client";
-import { MaterialProperty } from "@prisma/client";
 import { useEffect, useState } from "react";
 
+type Material = {
+  id: number;
+  material: string;
+  density?: string;
+  costPerKg: string;
+};
+
+type Period = {
+  id: number;
+  period: string;
+  startDate: string;
+  endDate: string;
+  materials: Material[];
+}
+
 export default function Home(){
-  
-  const [materialProperties, setMaterialProperties] = useState<MaterialProperty[]>([]);
+
+  const [periods, setPeriods] = useState<Period[]>([]);
 
   useEffect(() => {
     async function fetchData() {
         
-      const allMaterialProperties = await Api.properties.getAll();
+      const apiPeriods = await Api.periods.getAll();
 
-      setMaterialProperties(allMaterialProperties.sort((a, b) => {
-        if (a.material === "Alu") return -1;
-        if (b.material === "Alu") return 1;
-        if (a.material === "PE") return -1;
-        if (b.material === "PE") return 1;
-        return 0;
-      }));       
+      const mappedPeriods: Period[] = apiPeriods.map((p: any) => ({
+        id: p.id,
+        period: p.period,
+        startDate: typeof p.startDate === "string" ? p.startDate : p.startDate?.toISOString?.() ?? "",
+        endDate: typeof p.endDate === "string" ? p.endDate : p.endDate?.toISOString?.() ?? "",
+        materials: p.materials ?? [],
+      }));
+
+      setPeriods(mappedPeriods.sort(
+        (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+      ));
     }
 
     fetchData();
@@ -37,10 +55,8 @@ export default function Home(){
           </h1>
         </div>
 
-        {materialProperties?.length > 0 ? (
-          <MaterialPropertiesTable materials={materialProperties as any} />
-        ) : (
-          <p className='pb-5'>Loading material properties...</p>
+        {periods?.length > 0 && periods.map((period, i) => 
+          <MaterialPropertiesTable materials={period.materials} title={period.period} key={i} />
         )}
       </div>
     </div>

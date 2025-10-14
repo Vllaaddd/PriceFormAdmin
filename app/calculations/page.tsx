@@ -16,7 +16,9 @@ export default function CalculationsPage() {
   useEffect(() => {
     async function fetchData() {
       const data = await Api.calculations.getAll();
-      setCalculations(data);
+      setCalculations(data.sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      ));
       setLoading(false);
     }
     fetchData();
@@ -24,7 +26,7 @@ export default function CalculationsPage() {
 
   async function handleDelete(id: number) {
     Swal.fire({
-        title: `Do you want to create calculation?`,
+        title: `Do you want to delete calculation?`,
         showCancelButton: true,
         confirmButtonText: "Save",
         cancelButtonColor: 'red'
@@ -70,7 +72,7 @@ export default function CalculationsPage() {
                   <thead className="bg-gray-50 border-b">
                     <tr>
                       <th className="p-3 text-sm font-semibold text-gray-700">#</th>
-                      <th className="p-3 text-sm font-semibold text-gray-700">Email</th>
+                      <th className="p-3 text-sm font-semibold text-gray-700">Title</th>
                       <th className="p-3 text-sm font-semibold text-gray-700">Material</th>
                       <th className="p-3 text-sm font-semibold text-gray-700">Width</th>
                       <th className="p-3 text-sm font-semibold text-gray-700">Thickness</th>
@@ -82,7 +84,7 @@ export default function CalculationsPage() {
                     {calculations.map((calc, i) => (
                       <tr key={calc.id} className="border-b hover:bg-gray-50 transition">
                         <td className="p-3 text-gray-600">{i + 1}</td>
-                        <td className="p-3 text-gray-800">{calc.creator}</td>
+                        <td className="p-3 text-gray-800">{calc.title}</td>
                         <td className="p-3">{calc.material}</td>
                         <td className="p-3">{calc.materialWidth}</td>
                         <td className="p-3">{calc.materialThickness}</td>
