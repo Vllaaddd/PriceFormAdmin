@@ -47,7 +47,7 @@ export const MaterialPropertiesTable: FC<Props> = ({ materials, title }) => {
                 </h1>
             </div>
 
-            <div className="overflow-x-auto shadow-md rounded-2xl border border-gray-200 bg-white w-[720px]">
+            <div className="overflow-x-auto shadow-md rounded-2xl border border-gray-200 bg-white">
                 <table className="min-w-full text-sm text-left text-gray-700">
                     <thead className="bg-gray-50 text-gray-900 uppercase font-medium">
                         <tr>

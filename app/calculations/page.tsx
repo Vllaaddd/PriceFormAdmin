@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 import Link from "next/link";
+import { LoadingCard } from "@/components/loading-card";
 
 export default function CalculationsPage() {
   const [calculations, setCalculations] = useState<Calculation[]>([]);
@@ -61,9 +62,7 @@ export default function CalculationsPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-gray-500 italic text-center py-6 animate-pulse">
-                Loading calculations...
-              </p>
+              <LoadingCard text="Loading calculations..." />
             ) : calculations.length === 0 ? (
               <p className="text-gray-500 text-center py-6">No calculations found</p>
             ) : (

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Api } from "@/services/api-client";
 import { Skillet } from "@prisma/client";
 import { SkilletsTable } from "@/components/skillets-table";
+import { LoadingCard } from "@/components/loading-card";
 
 export default function Home(){
 
@@ -31,7 +32,7 @@ export default function Home(){
                 {skillets?.length > 0 ? (
                     <SkilletsTable skillets={skillets} />
                 ) : (
-                    <p className='pb-5'>Loading skillets...</p>
+                    <LoadingCard text="Loading skillets..." />
                 )}
 
             </div>

@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { PlusCircle } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
+import { LoadingCard } from "@/components/loading-card";
 
 type Material = {
   id: number;
@@ -162,8 +163,14 @@ export default function Home(){
           </Dialog>
         </div>
 
-        {periods?.length > 0 && periods.map((period, i) => 
-          <MaterialPropertiesTable materials={period.materials} title={period.period} key={i} />
+        {periods?.length > 0 ? (
+          <>
+            {periods.map((period, i) => 
+              <MaterialPropertiesTable materials={period.materials} title={period.period} key={i} />
+            )}
+          </>
+        ) : (
+          <LoadingCard text="Loading materials..." />
         )}
       </div>
       

@@ -1,6 +1,7 @@
 'use client'
 
 import { CoresTable } from "@/components/cores-table";
+import { LoadingCard } from "@/components/loading-card";
 import { Api } from "@/services/api-client";
 import { Core } from "@prisma/client";
 import { useEffect, useState } from "react";
@@ -31,7 +32,7 @@ export default function Home(){
 
   return(
     <div className='min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 py-10 px-6'>
-      <div className="p-4 text-center flex flex-col items-center">
+      <div className="max-w-7xl mx-auto space-y-10">
 
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-3 tracking-tight">
@@ -42,7 +43,7 @@ export default function Home(){
         {cores?.length > 0 ? (
           <CoresTable cores={cores as any} />
         ) : (
-          <p className='pb-5'>Loading cores...</p>
+          <LoadingCard text="Loading cores..." />
         )}
       </div>
     </div>

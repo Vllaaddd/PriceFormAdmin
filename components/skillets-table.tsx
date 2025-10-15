@@ -11,6 +11,7 @@ type Skillet = {
     smallDescription: string;
     mediumDescription: string;
     largeDescription: string;
+    article: string;
 }
 
 interface Props{
@@ -25,6 +26,7 @@ export const SkilletsTable: FC<Props> = ({ skillets }) => {
                 <table className="min-w-full text-sm text-left text-gray-700">
                     <thead className="bg-gray-50 text-gray-900 text-sm uppercase font-medium">
                         <tr>
+                            <th className="px-5 py-3">Article</th>
                             <th className="px-5 py-3">Format</th>
                             <th className="px-5 py-3">Knife</th>
                             <th className="px-5 py-3">Density</th>
@@ -46,6 +48,7 @@ export const SkilletsTable: FC<Props> = ({ skillets }) => {
                                         index % 2 === 0 ? "bg-white" : "bg-gray-100"
                                     } hover:bg-blue-50`}
                                 >
+                                    <td className="px-5 py-3 font-medium">{skillet.article}</td>
                                     <td className="px-5 py-3 font-medium">{skillet.format}</td>
                                     <td className="px-5 py-3">{skillet.knife}</td>
                                     <td className="px-5 py-3">{skillet.density}</td>

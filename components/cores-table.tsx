@@ -7,6 +7,7 @@ type Core = {
     thickness: number;
     type?: string;
     price: number;
+    article: string;
 }
 
 interface Props{
@@ -18,10 +19,11 @@ export const CoresTable: FC<Props> = ({ cores }) => {
     return(
         <div className="pb-10">
 
-            <div className="overflow-x-auto shadow-md rounded-2xl border border-gray-200 bg-white w-[720px]">
+            <div className="overflow-x-auto shadow-md rounded-2xl border border-gray-200 bg-white">
                 <table className="min-w-full text-sm text-left text-gray-700">
-                    <thead className="bg-gray-50 text-gray-900 uppercase font-medium">
+                    <thead className="bg-gray-50 text-gray-900 text-sm uppercase font-medium">
                         <tr>
+                            <th className="px-5 py-3 text-center">Article</th>
                             <th className="px-5 py-3 text-center">Dimensions</th>
                             <th className="px-5 py-3 text-center">Type</th>
                             <th className="px-5 py-3 text-center">Price</th>
@@ -35,6 +37,9 @@ export const CoresTable: FC<Props> = ({ cores }) => {
                                 index % 2 === 0 ? "bg-white" : "bg-gray-100"
                                 } hover:bg-blue-50`}
                             >
+                                <td className="px-5 py-3 text-center font-medium text-gray-900">
+                                    {core.article}
+                                </td>
                                 <td className="px-5 py-3 text-center font-medium text-gray-900">
                                     {core.length} x {core.width} x {core.thickness} mm
                                 </td>
