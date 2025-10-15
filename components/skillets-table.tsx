@@ -1,18 +1,5 @@
-import { FC, useState } from "react";
-
-type Skillet = {
-    id: number;
-    format: number;
-    knife: string;
-    density: number;
-    smallPrice: number;
-    mediumPrice: number;
-    largePrice: number;
-    smallDescription: string;
-    mediumDescription: string;
-    largeDescription: string;
-    article: string;
-}
+import { Skillet } from "@prisma/client";
+import { FC } from "react";
 
 interface Props{
     skillets: Skillet[];
