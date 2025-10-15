@@ -23,6 +23,7 @@ interface Props{
 export const LinesTable: FC<Props> = ({ lines, title }) => {
 
     const [rollLengths, setRollLengths] = useState<Record<number, string>>({});
+    const [costPerMin, setCostPerMin] = useState<Record<number, string>>({})
 
     const handleRollLengthChange = async (id: number, rollLength: string) => {
 
@@ -42,6 +43,25 @@ export const LinesTable: FC<Props> = ({ lines, title }) => {
         await Api.lines.update(id, { 
             rollLength,
             processingTime,
+            valuePerRoll
+        });
+    };
+
+    const handleCostPerMinChange = async (id: number, costPerMin: string) => {
+
+
+        const line = lines.find((line) => line.id === id);
+        if (!line) return;
+
+        const valuePerRoll = line.processingTime * Number(costPerMin);
+
+        setCostPerMin((prev) => ({
+            ...prev,
+            [id]: costPerMin,
+        }));
+
+        await Api.lines.update(id, {
+            costPerMin: Number(costPerMin),
             valuePerRoll
         });
     };
@@ -68,7 +88,7 @@ export const LinesTable: FC<Props> = ({ lines, title }) => {
                         {lines?.map((line, index) => {
                             const currentRollLength = rollLengths[line.id] ?? Number(line.rollLength);
                             const processingTime = Number(currentRollLength) / line.avSpeed;
-                            const valuePerRoll = processingTime * line.costPerMin;
+                            const valuePerRoll = processingTime * (Number(costPerMin[line.id]) || line.costPerMin);
 
                             return (
                                 <tr
@@ -84,16 +104,25 @@ export const LinesTable: FC<Props> = ({ lines, title }) => {
                                     <td className="px-5 py-3">{line.avSpeed}</td>
                                     <td className="px-5 py-3">
                                         <input
-                                        type="string"
-                                        value={rollLengths[line.id] ?? line.rollLength ?? ""}
-                                        onChange={(e) =>
-                                            handleRollLengthChange( line.id, e.target.value )
-                                        }
-                                        className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                                            type="string"
+                                            value={rollLengths[line.id] ?? line.rollLength ?? ""}
+                                            onChange={(e) =>
+                                                handleRollLengthChange( line.id, e.target.value )
+                                            }
+                                            className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                                         />
                                     </td>
                                     <td className="px-5 py-3">{processingTime.toFixed(3)}</td>
-                                    <td className="px-5 py-3">{line.costPerMin.toFixed(3)}</td>
+                                    <td className="px-5 py-3">
+                                        <input
+                                            type="string"
+                                            value={costPerMin[line.id] ?? line.costPerMin.toFixed(3) ?? ""}
+                                            onChange={(e) =>
+                                                handleCostPerMinChange( line.id, e.target.value )
+                                            }
+                                            className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                                        />
+                                    </td>
                                     <td className="px-5 py-3 font-semibold text-blue-700">{valuePerRoll.toFixed(3)}</td>
                                 </tr>
                             );

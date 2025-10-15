@@ -13,7 +13,12 @@ export default function Home(){
     useEffect(() => {
         async function fetchData() {
             const skillets = await Api.skillets.getAll();
-            setSkillets(skillets);
+            setSkillets(skillets.sort((a, b) => {
+                if(a.format === b.format){
+                    return a.density - b.density
+                }
+                return a.format - b.format
+            }));
         }
 
         fetchData();

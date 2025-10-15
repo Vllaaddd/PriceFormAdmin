@@ -18,6 +18,14 @@ export const getOne = async (id: string): Promise<Skillet> => {
 
 }
 
+export const update = async (id: number, data: any): Promise<Skillet> => {
+    
+    const res = await axiosInstance.patch<Skillet>(`${ApiRoutes.SKILLETS}/${id}`, data)
+
+    return res.data
+
+}
+
 export const find = async (filters: {
     format: number;
     knife: string;

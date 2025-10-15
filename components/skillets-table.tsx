@@ -1,11 +1,28 @@
+import { Api } from "@/services/api-client";
 import { Skillet } from "@prisma/client";
-import { FC } from "react";
+import { FC, useState } from "react";
 
 interface Props{
     skillets: Skillet[];
 }
 
 export const SkilletsTable: FC<Props> = ({ skillets }) => {
+
+    const [price, setPrice] = useState<Record<number, { small: string; medium: string; large: string; }>>({})
+
+    const handelPriceChange = async (id: number, price: string, type: string) => {
+
+        setPrice((prev) => ({
+            ...prev,
+            [id]: {
+                ...prev[id],
+                [type === "smallPrice" ? "small" : type === "mediumPrice" ? "medium" : "large"]: price
+            }
+        }))
+
+        await Api.skillets.update(Number(id), { [type]: Number(price) })
+
+    }
 
     return(
         <div className="mb-16">
@@ -28,6 +45,8 @@ export const SkilletsTable: FC<Props> = ({ skillets }) => {
                     <tbody className="divide-y divide-gray-100">
                         {skillets?.map((skillet, index) => {
 
+                            const current = price[skillet.id] || {};
+
                             return (
                                 <tr
                                     key={skillet.id}
@@ -39,9 +58,36 @@ export const SkilletsTable: FC<Props> = ({ skillets }) => {
                                     <td className="px-5 py-3 font-medium">{skillet.format}</td>
                                     <td className="px-5 py-3">{skillet.knife}</td>
                                     <td className="px-5 py-3">{skillet.density}</td>
-                                    <td className="px-5 py-3">{skillet.smallPrice}</td>
-                                    <td className="px-5 py-3">{skillet.mediumPrice}</td>
-                                    <td className="px-5 py-3">{skillet.largePrice}</td>
+                                    <td>
+                                        <input
+                                            type="string"
+                                            value={current.small ?? skillet.smallPrice}
+                                            onChange={(e) =>
+                                                handelPriceChange( skillet.id, e.target.value, 'smallPrice' )
+                                            }
+                                            className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                                        />
+                                    </td>
+                                    <td>
+                                        <input
+                                            type="string"
+                                            value={current.medium ?? skillet.mediumPrice}
+                                            onChange={(e) =>
+                                                handelPriceChange( skillet.id, e.target.value, 'mediumPrice' )
+                                            }
+                                            className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                                        />
+                                    </td>
+                                    <td>
+                                        <input
+                                            type="string"
+                                            value={current.large ?? skillet.largePrice}
+                                            onChange={(e) =>
+                                                handelPriceChange( skillet.id, e.target.value, 'mediumPrice' )
+                                            }
+                                            className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                                        />
+                                    </td>
                                     <td className="px-5 py-3">{skillet.smallDescription}</td>
                                     <td className="px-5 py-3">{skillet.mediumDescription}</td>
                                     <td className="px-5 py-3">{skillet.largeDescription}</td>

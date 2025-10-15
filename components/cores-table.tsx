@@ -1,4 +1,5 @@
-import { FC } from "react";
+import { Api } from "@/services/api-client";
+import { FC, useState } from "react";
 
 type Core = {
     id: number;
@@ -15,6 +16,19 @@ interface Props{
 }
 
 export const CoresTable: FC<Props> = ({ cores }) => {
+
+    const [price, setPrice] = useState<Record<number, string>>({})
+
+    const handlePriceChange = async (id: number, price: string) => {
+
+        setPrice((prev) => ({
+            ...prev,
+            [id]: price
+        }))
+
+        await Api.cores.update(id, { price: Number(price) })
+
+    }
 
     return(
         <div className="pb-10">
@@ -47,7 +61,14 @@ export const CoresTable: FC<Props> = ({ cores }) => {
                                     {core.type}
                                 </td>
                                 <td className="px-5 py-3 text-center font-medium text-gray-900">
-                                    {core.price}
+                                    <input
+                                        type="string"
+                                        value={price[core.id] ?? core.price}
+                                        onChange={(e) =>
+                                            handlePriceChange( core.id, e.target.value )
+                                        }
+                                        className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                                    />
                                 </td>
                             </tr>
                         ))}
