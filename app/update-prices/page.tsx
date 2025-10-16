@@ -78,7 +78,7 @@ export default function Home(){
                 Excel Price Uploader
             </h1>
 
-            { !rows.length && (
+            {/* { !rows.length && (
                 <div
                     onDrop={(e) => {
                         e.preventDefault();
@@ -142,7 +142,7 @@ export default function Home(){
                 >
                     {loading ? 'Updating...' : 'Update Prices'}
                 </button>
-            )}
+            )} */}
         </div>
     )
 }
