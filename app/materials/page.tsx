@@ -166,7 +166,7 @@ export default function Home(){
         {periods?.length > 0 ? (
           <>
             {periods.map((period, i) => 
-              <MaterialPropertiesTable materials={period.materials} title={period.period} key={i} />
+              <MaterialPropertiesTable materials={period.materials} title={period.period} periodId={period.id} onDelete={() => setPeriods(prev => prev.filter(p => p.id !== period.id))} key={i} />
             )}
           </>
         ) : (

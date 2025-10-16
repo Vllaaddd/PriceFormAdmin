@@ -1,7 +1,10 @@
 "use client";
 
 import { Api } from "@/services/api-client";
+import { Trash2 } from "lucide-react";
 import { FC, useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import Swal from "sweetalert2";
 
 type Material = {
     id: number;
@@ -13,9 +16,11 @@ type Material = {
 interface Props {
     materials: Material[];
     title: string;
+    periodId: number;
+    onDelete: () => void;
 }
 
-export const MaterialPropertiesTable: FC<Props> = ({ materials, title }) => {
+export const MaterialPropertiesTable: FC<Props> = ({ materials, title, periodId, onDelete }) => {
     const [costPerKg, setCostPerKg] = useState<Record<number, string>>({});
     const [sortedMaterials, setSortedMaterials] = useState<Material[]>([]);
 
@@ -38,6 +43,30 @@ export const MaterialPropertiesTable: FC<Props> = ({ materials, title }) => {
         await Api.periods.update(id, cost);
     };
 
+    const handleDeletePeriod = async (id: number) => {
+
+        Swal.fire({
+            title: `Do you want to delete period?`,
+            showCancelButton: true,
+            confirmButtonText: "Delete",
+            cancelButtonColor: 'red'
+        }).then( async (result) => {
+        if (result.isConfirmed) {
+            try {
+                await Api.periods.deletePeriod(id);
+                toast.success("Period deleted!");
+                onDelete?.()
+            } catch (err) {
+                toast.error("Failed to delete period.");
+            }
+            } else if (result.isDenied) {
+                Swal.fire("Changes are not saved", "", "info");
+                return
+            }
+        });
+
+    }
+
     return (
         <div className="pb-10">
             <div className="flex justify-between items-center mb-4">
@@ -45,6 +74,14 @@ export const MaterialPropertiesTable: FC<Props> = ({ materials, title }) => {
                     <span className="block w-1 h-6 bg-blue-500 rounded-full"></span>
                     {title}
                 </h1>
+
+                <button
+                    onClick={() => handleDeletePeriod(periodId)}
+                    className="flex items-center gap-1 text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg shadow-sm transition-all duration-200 cursor-pointer"
+                >
+                    <Trash2 size={16} />
+                    Delete
+                </button>
             </div>
 
             <div className="overflow-x-auto shadow-md rounded-2xl border border-gray-200 bg-white">
@@ -89,6 +126,7 @@ export const MaterialPropertiesTable: FC<Props> = ({ materials, title }) => {
                     </tbody>
                 </table>
             </div>
+            <ToastContainer />
         </div>
     );
 };

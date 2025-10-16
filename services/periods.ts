@@ -36,3 +36,11 @@ export const create = async ( data: any ): Promise<Period> => {
     return res.data
 
 }
+
+export const deletePeriod = async (id: number): Promise<Period> => {
+
+    const { data } = await axiosInstance.delete(`${ApiRoutes.PERIODS}/${id}`)
+
+    return data
+
+}

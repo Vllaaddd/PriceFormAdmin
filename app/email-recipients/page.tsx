@@ -83,13 +83,13 @@ export default function EmailRecipientsPage() {
             <DialogTrigger asChild className="cursor-pointer">
               <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all duration-200">
                 <PlusCircle className="w-4 h-4" />
-                New Period
+                New recipient
               </Button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>Create New Period</DialogTitle>
+                <DialogTitle>Create New Recipient</DialogTitle>
               </DialogHeader>
 
                 <div className="flex flex-col gap-3 py-2">
