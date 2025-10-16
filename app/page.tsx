@@ -75,7 +75,7 @@ export default function DashboardPage() {
         <Card className="shadow-lg border-none">
           <CardContent className="p-6">
             <h2 className="text-xl font-semibold mb-4">Calculations by Day</h2>
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={280}>
               <LineChart data={dailyData}>
                 <XAxis dataKey="day" />
                 <YAxis />
@@ -89,7 +89,7 @@ export default function DashboardPage() {
         <Card className="shadow-lg border-none">
           <CardContent className="p-6">
             <h2 className="text-xl font-semibold mb-4">Material Distribution</h2>
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie data={materialData} dataKey="value" nameKey="name" label>
                   {materialData.map((_, index) => (

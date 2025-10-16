@@ -1,21 +1,21 @@
 'use client'
 
 import { Api } from "@/services/api-client";
-import { useState } from "react";
+import { ArrowDown, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 import * as XLSX from 'xlsx';
 
 interface ParsedRow {
     article: string;
-    smallPrice?: number;
-    mediumPrice?: number;
-    largePrice?: number;
-    corePrice?: number;
+    price?: number;
 }
 
 export default function Home(){
     
     const [rows, setRows] = useState<ParsedRow[]>([]);
     const [loading, setLoading] = useState(false);
+    const bottomRef = useRef<HTMLDivElement | null>(null);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -30,11 +30,8 @@ export default function Home(){
             const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
             const parsed: ParsedRow[] = (jsonData as any[]).map((row) => ({
-                article: row['article']?.toString()?.trim() || '',
-                smallPrice: parseFloat(row['smallPrice']) || undefined,
-                mediumPrice: parseFloat(row['mediumPrice']) || undefined,
-                largePrice: parseFloat(row['largePrice']) || undefined,
-                corePrice: parseFloat(row['corePrice']) || undefined,
+                article: row['Nr.']?.toString()?.trim() || '',
+                price: parseFloat(row['EPF']) || undefined,
             }));
 
             setRows(parsed);
@@ -44,32 +41,46 @@ export default function Home(){
 
     const handleUpdate = async () => {
         if (!rows.length) return alert('No data found in Excel!');
-        setLoading(true);
+        setLoading(true); 
 
-        // try {
-        //     for (const row of rows) {
-        //         if (row.article) {
-        //             if (row.smallPrice || row.mediumPrice || row.largePrice) {
-        //                 await Api.skillets.updateByArticle(row.article, {
-        //                     smallPrice: row.smallPrice,
-        //                     mediumPrice: row.mediumPrice,
-        //                     largePrice: row.largePrice,
-        //                 });
-        //             }
+        for (const row of rows) {
+            if (row.article !== undefined && row.price !== undefined){
+                try{
+                    // if (row.price) {
+                    //     await Api.skillets.updateByArticle(row.article, {
+                    //         smallPrice: row.smallPrice,
+                    //         mediumPrice: row.mediumPrice,
+                    //         largePrice: row.largePrice,
+                    //     });
+                    // }
 
-        //             if (row.corePrice) {
-        //                 await Api.cores.updateByArticle(row.article, { price: row.corePrice });
-        //             }
-        //         }
-        //     }
+                    if (row.price) {
+                        await Api.cores.updateByArticle(row.article, { price: row.price });
+                    }
+                    toast.success(' Prices updated successfully!');
+                }catch (err) {
+                    console.error(err);
+                    toast.error('Error while updating!');
+                    setLoading(false);
+                }finally {
+                    setLoading(false);
+                }
+            }else if(row.article && row.price === undefined){
+                toast.error(`Invalid price for article ${row.article}!`);
+                setLoading(false);
+            }else{
+                toast.error(`Invalid data!`);
+                setLoading(false);
+            }
+        }
+    };
 
-        //     alert('✅ Prices updated successfully!');
-        // }catch (err) {
-        //     console.error(err);
-        //     alert('❌ Error while updating!');
-        // }finally {
-        //     setLoading(false);
-        // }
+    const scrollToBottom = () => {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const handleCloseTable = () => {
+        setRows([]);
     };
     
     return(
@@ -78,7 +89,7 @@ export default function Home(){
                 Excel Price Uploader
             </h1>
 
-            {/* { !rows.length && (
+            { !rows.length && (
                 <div
                     onDrop={(e) => {
                         e.preventDefault();
@@ -113,24 +124,39 @@ export default function Home(){
                         <thead>
                             <tr className="bg-gray-200 text-gray-900">
                                 <th className="px-3 py-2">Article</th>
-                                <th className="px-3 py-2">Small</th>
-                                <th className="px-3 py-2">Medium</th>
-                                <th className="px-3 py-2">Large</th>
-                                <th className="px-3 py-2">Core Price</th>
+                                <th className="px-3 py-2">Price</th>
                             </tr>
                         </thead>
                         <tbody>
                             {rows.map((r, i) => (
                                 <tr key={i} className={i % 2 ? 'bg-gray-50' : 'bg-white'}>
-                                <td className="px-3 py-2 font-medium">{r.article}</td>
-                                <td className="px-3 py-2">{r.smallPrice ?? '-'}</td>
-                                <td className="px-3 py-2">{r.mediumPrice ?? '-'}</td>
-                                <td className="px-3 py-2">{r.largePrice ?? '-'}</td>
-                                <td className="px-3 py-2">{r.corePrice ?? '-'}</td>
+                                <td className="px-3 py-2 font-medium text-center">{r.article}</td>
+                                <td className="px-3 py-2 text-center">{r.price ?? '-'}</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                    <div ref={bottomRef}></div>
+                </div>
+            )}
+
+            {rows.length > 0 && (
+                <div className="fixed bottom-6 right-6 flex flex-col sm:flex-row gap-3 sm:gap-4 z-50">
+                    <button
+                        onClick={handleCloseTable}
+                        className="bg-red-500 text-white p-3 rounded-full hover:bg-red-600 transition cursor-pointer w-[50px] h-[50px] flex items-center justify-center shadow-md active:scale-95 sm:w-[48px] sm:h-[48px]"
+                        title="Close table"
+                    >
+                        <X size={22} />
+                    </button>
+
+                    <button
+                        onClick={scrollToBottom}
+                        className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition cursor-pointer w-[50px] h-[50px] flex items-center justify-center shadow-md active:scale-95 sm:w-[48px] sm:h-[48px]"
+                        title="Scroll to bottom"
+                    >
+                        <ArrowDown size={24} />
+                    </button>
                 </div>
             )}
 
@@ -140,9 +166,10 @@ export default function Home(){
                     disabled={loading}
                     className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition cursor-pointer"
                 >
-                    {loading ? 'Updating...' : 'Update Prices'}
+                    {loading ? 'Updating, please wait...' : 'Update Prices'}
                 </button>
-            )} */}
+            )}
+            <ToastContainer />
         </div>
     )
 }

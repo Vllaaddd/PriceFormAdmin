@@ -18,6 +18,14 @@ export const update = async (id: number, data: any): Promise<Core> => {
 
 }
 
+export const updateByArticle = async (article: string, data: any): Promise<Core[]> => {
+
+    const res = await axiosInstance.patch(`${ApiRoutes.CORES}/by-article/${article}`, data)
+
+    return res.data
+
+}
+
 export const find = async (filters: {
     length: number;
     type: string;
