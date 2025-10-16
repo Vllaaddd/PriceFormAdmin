@@ -146,7 +146,7 @@ export default function EmailRecipientsPage() {
                 <tr>
                   <th className="px-5 py-3">Name</th>
                   <th className="px-5 py-3">Email</th>
-                  <th className="px-5 py-3 text-right">Actions</th>
+                  <th className="px-5 py-3 text-right">Delete recipient</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
