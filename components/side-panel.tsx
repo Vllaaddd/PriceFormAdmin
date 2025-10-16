@@ -28,12 +28,30 @@ export const SidePanel: FC = () => {
         </h1>
 
         <div className="flex flex-col gap-3 w-full">
-          <Link href="/"><Title active={pathname === '/'} title="Home" /></Link>
-          <Link href="/lines"><Title active={pathname === '/lines'} title="Lines" /></Link>
-          <Link href="/materials"><Title active={pathname === '/materials'} title="Materials" /></Link>
-          <Link href="/skillets"><Title active={pathname === '/skillets'} title="Skillets" /></Link>
-          <Link href="/cores"><Title active={pathname === '/cores'} title="Cores" /></Link>
-          <Link href="/calculations"><Title active={pathname === '/calculations'} title="Calculations" /></Link>
+          <Link href="/">
+            <Title active={pathname === '/'} title="Home" />
+          </Link>
+          <Link href="/lines">
+            <Title active={pathname === '/lines'} title="Lines" />
+          </Link>
+          <Link href="/materials">
+            <Title active={pathname === '/materials'} title="Materials" />
+          </Link>
+          <Link href="/skillets">
+            <Title active={pathname === '/skillets'} title="Skillets" />
+          </Link>
+          <Link href="/cores">
+            <Title active={pathname === '/cores'} title="Cores" />
+          </Link>
+          <Link href="/calculations">
+            <Title active={pathname === '/calculations'} title="Calculations" />
+          </Link>
+          <Link href="/email-recipients">
+            <Title active={pathname === '/email-recipients'} title="Email recipients" />
+          </Link>
+          <Link href="/update-prices">
+            <Title active={pathname === '/update-prices'} title="Update prices" />
+          </Link>
         </div>
       </div>
 
@@ -75,6 +93,12 @@ export const SidePanel: FC = () => {
               </Link>
               <Link href="/calculations" onClick={() => setIsOpen(false)}>
                 <Title active={pathname === '/calculations'} title="Calculations" />
+              </Link>
+              <Link href="/email-recipients">
+                <Title active={pathname === '/email-recipients'} title="Email recipients" />
+              </Link>
+              <Link href="/update-prices" onClick={() => setIsOpen(false)}>
+                <Title active={pathname === '/update-prices'} title="Update prices" />
               </Link>
             </div>
           </motion.div>

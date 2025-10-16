@@ -27,24 +27,24 @@ export default function CalculationsPage() {
 
   async function handleDelete(id: number) {
     Swal.fire({
-        title: `Do you want to delete calculation?`,
-        showCancelButton: true,
-        confirmButtonText: "Save",
-        cancelButtonColor: 'red'
-      }).then( async (result) => {
-        if (result.isConfirmed) {
-          try {
-            await Api.calculations.deleteCalculation(id);
-            setCalculations((prev) => prev.filter((c) => c.id !== id));
-            toast.success("Calculation deleted!");
-          } catch (err) {
-            toast.error("Failed to delete calculation.");
-          }
-        } else if (result.isDenied) {
-          Swal.fire("Changes are not saved", "", "info");
-          return
+      title: `Do you want to delete calculation?`,
+      showCancelButton: true,
+      confirmButtonText: "Save",
+      cancelButtonColor: 'red'
+    }).then( async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await Api.calculations.deleteCalculation(id);
+          setCalculations((prev) => prev.filter((c) => c.id !== id));
+          toast.success("Calculation deleted!");
+        } catch (err) {
+          toast.error("Failed to delete calculation.");
         }
-      });
+      } else if (result.isDenied) {
+        Swal.fire("Changes are not saved", "", "info");
+        return
+      }
+    });
   }
 
   return (
