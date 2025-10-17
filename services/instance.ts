@@ -1,19 +1,19 @@
 import axios from 'axios'
 
-let baseURL: string;
+// let baseURL: string;
 
-if (typeof window === "undefined") {
+// if (typeof window === "undefined") {
     
-    const vercelUrl = process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000";
+//     const vercelUrl = process.env.VERCEL_URL
+//         ? `https://${process.env.VERCEL_URL}`
+//         : "http://localhost:3000";
 
-    baseURL = vercelUrl;
+//     baseURL = vercelUrl;
 
-} else {
-    baseURL = "";
-}
+// } else {
+//     baseURL = "";
+// }
 
 export const axiosInstance = axios.create({
-    baseURL,
+    baseURL: "https://price-form-admin.vercel.app/",
 })
