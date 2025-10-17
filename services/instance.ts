@@ -1,7 +1,5 @@
 import axios from 'axios'
 
-const isServer = typeof window === "undefined";
-
 let baseURL: string;
 
 if (typeof window === "undefined") {
