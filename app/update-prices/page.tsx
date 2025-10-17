@@ -2,6 +2,7 @@
 
 import UpdatePricesPage from "@/components/update-prices-page";
 import { auth } from "@/lib/auth";
+import { Api } from "@/services/api-client";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -11,7 +12,12 @@ export default async function Page() {
         headers: await headers()
     });
 
-    if(!session) {
+    const admins = await Api.admins.getAll();
+    const isAdmin = admins.some(
+        (admin: any) => admin.email === session?.user.email
+    );
+
+    if(!session || !isAdmin){
         redirect('/login');
     }else{
         return <UpdatePricesPage />

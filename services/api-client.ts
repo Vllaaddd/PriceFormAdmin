@@ -5,6 +5,7 @@ import * as skillets from './skillets'
 import * as cores from './cores'
 import * as periods from './periods'
 import * as recipients from './recipients'
+import * as admins from './admins'
 
 export const Api = {
     calculations,
@@ -14,4 +15,5 @@ export const Api = {
     cores,
     periods,
     recipients,
+    admins,
 }

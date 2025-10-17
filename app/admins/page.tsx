@@ -1,13 +1,13 @@
 'use server'
 
-import CalculationsEditPage from "@/components/calculations-edit-page";
+import AdminsPage from "@/components/admin-page";
 import { auth } from "@/lib/auth";
 import { Api } from "@/services/api-client";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default async function Page(){
-
+export default async function Page() { 
+  
     const session = await auth.api.getSession({
         headers: await headers()
     });
@@ -16,10 +16,10 @@ export default async function Page(){
     const isAdmin = admins.some(
         (admin: any) => admin.email === session?.user.email
     );
-    
+
     if(!session || !isAdmin){
         redirect('/login');
     }else{
-        return <CalculationsEditPage />
+        return <AdminsPage />
     }
 }

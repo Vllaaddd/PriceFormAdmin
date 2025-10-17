@@ -14,6 +14,6 @@ export default async function Page() {
   if(!session) {
     redirect('/login');
   }else{
-    return <HomePage />
+    return <HomePage email={session?.user.email} />
   }
 }

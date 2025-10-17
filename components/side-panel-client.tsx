@@ -1,13 +1,16 @@
 'use client'
 
 import Link from "next/link";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Title } from "./title";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "@/lib/actions/auth-actions";
 import Image from "next/image";
+import { Api } from "@/services/api-client";
+import { Admin } from "@prisma/client";
+import { set } from "better-auth";
 
 type Props = {
   session: any;
@@ -17,6 +20,7 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const [admins, setAdmins] = useState<Admin[]>([]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -24,6 +28,23 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
   };
 
   const user = session?.user;
+
+  useEffect(() => {
+
+    const fetchAdmins = async () => {
+      try {
+        
+        const admins = await Api.admins.getAll();
+        setAdmins(admins);
+
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    fetchAdmins();
+
+  }, [])
 
   return (
     <>
@@ -42,7 +63,7 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
         </h1>
 
         <div className="flex flex-col gap-3 w-full">
-          {user ? (
+          {(user && admins.find(a => a.email === session?.user?.email)) ? (
             <>
               <Link href="/"><Title active={pathname === '/'} title="Home" /></Link>
               <Link href="/lines"><Title active={pathname === '/lines'} title="Lines" /></Link>
@@ -52,6 +73,7 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
               <Link href="/calculations"><Title active={pathname === '/calculations'} title="Calculations" /></Link>
               <Link href="/email-recipients"><Title active={pathname === '/email-recipients'} title="Email recipients" /></Link>
               <Link href="/update-prices"><Title active={pathname === '/update-prices'} title="Update prices" /></Link>
+              <Link href="/admins"><Title active={pathname === '/admins'} title="Admins" /></Link>
 
               {user && (
                 <div className="flex flex-col items-center gap-3 mt-10">
@@ -101,7 +123,7 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
             </div>
 
             <div className="flex flex-col gap-4 text-lg">
-              {user ? (
+              {(user && admins.find(a => a.email === session?.user?.email)) ? (
                 <>
                   <Link href="/" onClick={() => setIsOpen(false)}><Title active={pathname === '/'} title="Home" /></Link>
                   <Link href="/lines" onClick={() => setIsOpen(false)}><Title active={pathname === '/lines'} title="Lines" /></Link>
@@ -111,6 +133,7 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
                   <Link href="/calculations" onClick={() => setIsOpen(false)}><Title active={pathname === '/calculations'} title="Calculations" /></Link>
                   <Link href="/email-recipients" onClick={() => setIsOpen(false)}><Title active={pathname === '/email-recipients'} title="Email recipients" /></Link>
                   <Link href="/update-prices" onClick={() => setIsOpen(false)}><Title active={pathname === '/update-prices'} title="Update prices" /></Link>
+                  <Link href="/admins" onClick={() => setIsOpen(false)}><Title active={pathname === '/admins'} title="Admins" /></Link>
 
                   {user && (
                     <div className="flex flex-col items-center gap-3 mt-10">

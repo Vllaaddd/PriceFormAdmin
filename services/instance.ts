@@ -1,5 +1,19 @@
 import axios from 'axios'
 
+const isServer = typeof window === "undefined";
+
+let baseURL: string;
+
+if (typeof window === "undefined") {
+    const vercelUrl = process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000";
+
+    baseURL = vercelUrl;
+} else {
+    baseURL = "";
+}
+
 export const axiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL
+    baseURL,
 })
