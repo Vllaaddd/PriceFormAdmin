@@ -1,6 +1,6 @@
 'use server'
 
-import EmailRecipientsPage from "@/components/email-recipients-page";
+import LoginPage from "@/components/login-page";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -11,9 +11,9 @@ export default async function Page() {
     headers: await headers()
   });
 
-  if(!session) {
-    redirect('/login');
+  if(session) {
+    redirect('/');
   }else{
-    return <EmailRecipientsPage />
+    return <LoginPage />
   }
 }

@@ -1,46 +1,19 @@
-'use client'
+'use server'
 
-import { useEffect, useState } from "react";
-import { Api } from "@/services/api-client";
-import { Skillet } from "@prisma/client";
-import { SkilletsTable } from "@/components/skillets-table";
-import { LoadingCard } from "@/components/loading-card";
+import SkilletsPage from "@/components/skillets-page";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function Home(){
+export default async function Page() { 
+  
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
 
-    const [skillets, setSkillets] = useState<Skillet[]>([]);
-
-    useEffect(() => {
-        async function fetchData() {
-            const skillets = await Api.skillets.getAll();
-            setSkillets(skillets.sort((a, b) => {
-                if(a.format === b.format){
-                    return a.density - b.density
-                }
-                return a.format - b.format
-            }));
-        }
-
-        fetchData();
-    }, []);
-
-    return(
-        <div className='min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 py-10 px-6'>
-            <div className="p-4 text-center">
-
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-                        Skillets Overview
-                    </h1>
-                </div>
-
-                {skillets?.length > 0 ? (
-                    <SkilletsTable skillets={skillets} />
-                ) : (
-                    <LoadingCard text="Loading skillets..." />
-                )}
-
-            </div>
-        </div>
-    )
+    if(!session) {
+        redirect('/login');
+    }else{
+        return <SkilletsPage />
+    }
 }
