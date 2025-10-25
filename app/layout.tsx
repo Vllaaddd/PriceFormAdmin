@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { SidePanel } from "@/components/side-panel";
+import Layout from "@/components/layout";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,24 +20,16 @@ export const metadata: Metadata = {
   description: "Admin dashboard",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex`}
-      >
-        <div className="fixed left-0 top-0 h-full z-50">
-          <SidePanel />
-        </div>
 
-        <main className="ml-0 lg:ml-72 flex-1 h-full overflow-y-auto bg-gray-50">
-          {children}
-        </main>
-      </body>
-    </html>
-  );
+  const session = await auth.api.getSession({ headers: await headers() });
+
+  return <Layout geistSans={geistSans} geistMono={geistMono } session={session}>
+    {children}
+  </Layout>
+
 }

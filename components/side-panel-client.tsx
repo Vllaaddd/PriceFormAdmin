@@ -10,7 +10,6 @@ import { signOut } from "@/lib/actions/auth-actions";
 import Image from "next/image";
 import { Api } from "@/services/api-client";
 import { Admin } from "@prisma/client";
-import { set } from "better-auth";
 
 type Props = {
   session: any;

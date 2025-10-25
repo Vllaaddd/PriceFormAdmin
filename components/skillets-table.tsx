@@ -37,9 +37,6 @@ export const SkilletsTable: FC<Props> = ({ skillets }) => {
                             <th className="px-5 py-3">30k-200k</th>
                             <th className="px-5 py-3">200k-500k</th>
                             <th className="px-5 py-3">500-1m</th>
-                            <th className="px-5 py-3">30k-200k</th>
-                            <th className="px-5 py-3">200k-500k</th>
-                            <th className="px-5 py-3">500-1m</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -88,9 +85,6 @@ export const SkilletsTable: FC<Props> = ({ skillets }) => {
                                             className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                                         />
                                     </td>
-                                    <td className="px-5 py-3">{skillet.smallDescription}</td>
-                                    <td className="px-5 py-3">{skillet.mediumDescription}</td>
-                                    <td className="px-5 py-3">{skillet.largeDescription}</td>
                                 </tr>
                             );
                         })}

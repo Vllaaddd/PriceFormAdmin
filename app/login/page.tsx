@@ -1,29 +1,33 @@
-'use server'
+"use client";
 
-import LoginPage from "@/components/login-page";
-import { auth } from "@/lib/auth";
-import { Api } from "@/services/api-client";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { signInSocial } from "@/lib/actions/auth-actions";
 
-export default async function Page() {
-  
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
+export default function LoginPage(){
+    const router = useRouter();
 
-  if (!session) {
-    return <LoginPage />;
-  }
+    useEffect(() => {
+        (async () => {
+            const session = await fetch("/api/auth/session").then((res) => res.json());
+            if (session?.user) router.push("/");
+        })();
+    }, [router]);
 
-  const admins = await Api.admins.getAll();
-  const isAdmin = admins.some(
-    (admin: any) => admin.email === session?.user.email
-  );
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            <div className="bg-white p-8 rounded-2xl shadow-md text-center space-y-4">
+                <h1 className="text-2xl font-semibold">Admin Login</h1>
+                <p className="text-gray-600">Login with Google to continue</p>
 
-  if (!isAdmin) {
-    return <LoginPage />
-  }
-
-  redirect('/');
+                <button
+                    onClick={() => signInSocial("google")}
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg flex items-center justify-center gap-2 w-full cursor-pointer"
+                >
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
+                    Sign in with Google
+                </button>
+            </div>
+        </div>
+    );
 }
