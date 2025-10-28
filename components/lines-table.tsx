@@ -24,6 +24,7 @@ export const LinesTable: FC<Props> = ({ lines, title }) => {
 
     const [rollLengths, setRollLengths] = useState<Record<number, string>>({});
     const [costPerMin, setCostPerMin] = useState<Record<number, string>>({})
+    const [avSpeed, setAvSpeed] = useState<Record<number, string>>({})
 
     const handleRollLengthChange = async (id: number, rollLength: string) => {
 
@@ -66,6 +67,22 @@ export const LinesTable: FC<Props> = ({ lines, title }) => {
         });
     };
 
+    const handleSpeedChange = async (id: number, avSpeed: string) => {
+
+
+        const line = lines.find((line) => line.id === id);
+        if (!line) return;
+
+        setAvSpeed((prev) => ({
+            ...prev,
+            [id]: avSpeed,
+        }));
+
+        await Api.lines.update(id, {
+            avSpeed: Number(avSpeed)
+        });
+    };
+
     return(
         <div className="mb-16">
             <h1 className="text-2xl font-semibold mb-6 text-gray-800">{title}</h1>
@@ -101,7 +118,16 @@ export const LinesTable: FC<Props> = ({ lines, title }) => {
                                     <td className="px-5 py-3">{line.length}</td>
                                     <td className="px-5 py-3">{line.totalDuration}</td>
                                     <td className="px-5 py-3">{line.totalMeters}</td>
-                                    <td className="px-5 py-3">{line.avSpeed}</td>
+                                    <td className="px-5 py-3">
+                                        <input
+                                            type="string"
+                                            value={avSpeed[line.id] ?? line.avSpeed ?? ""}
+                                            onChange={(e) =>
+                                                handleSpeedChange( line.id, e.target.value )
+                                            }
+                                            className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                                        />
+                                    </td>
                                     <td className="px-5 py-3">
                                         <input
                                             type="string"

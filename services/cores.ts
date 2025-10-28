@@ -26,6 +26,14 @@ export const updateByArticle = async (article: string, data: any): Promise<Core[
 
 }
 
+export const create = async(data: any): Promise<Core> => {
+    
+    const res = await axiosInstance.post(ApiRoutes.CORES, data)
+
+    return res.data
+    
+}
+
 export const find = async (filters: {
     length: number;
     type: string;

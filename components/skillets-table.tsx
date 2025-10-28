@@ -36,7 +36,7 @@ export const SkilletsTable: FC<Props> = ({ skillets }) => {
                             <th className="px-5 py-3">Density</th>
                             <th className="px-5 py-3">30k-200k</th>
                             <th className="px-5 py-3">200k-500k</th>
-                            <th className="px-5 py-3">500-1m</th>
+                            <th className="px-5 py-3">500k-1m</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">

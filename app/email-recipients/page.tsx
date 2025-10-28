@@ -10,6 +10,7 @@ import Swal from "sweetalert2"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { toast, ToastContainer } from "react-toastify"
+import { CreateInput } from "@/components/create-input"
 
 export default function EmailRecipientsPage(){
     const [recipients, setRecipients] = useState<EmailRecipient[]>([])
@@ -94,31 +95,24 @@ export default function EmailRecipientsPage(){
                             </DialogHeader>
 
                             <div className="flex flex-col gap-3 py-2">
-                                <div>
-                                    <label className="block text-sm font-medium mb-1 text-gray-700">
-                                        Name
-                                    </label>
-                                    <Input
-                                        type="string"
-                                        value={recipientName}
-                                        onChange={(e) =>
-                                        setRecipientName(e.target.value)
-                                        }
-                                    />
-                                </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium mb-1 text-gray-700">
-                                        Email
-                                    </label>
-                                    <Input
-                                        type="email"
-                                        value={recipientEmail}
-                                        onChange={(e) =>
+                                <CreateInput
+                                    title="Name"
+                                    placeholder="Name"
+                                    value={recipientName}
+                                    onChange={(e) =>
+                                        setRecipientName(e.target.value)
+                                    }
+                                />
+
+                                <CreateInput
+                                    title="Email"
+                                    placeholder="Email"
+                                    value={recipientEmail}
+                                    onChange={(e) =>
                                         setRecipientEmail(e.target.value)
-                                        }
-                                    />
-                                </div>
+                                    }
+                                />
                             </div>
 
                             <DialogFooter className="flex justify-end gap-2 mt-3">

@@ -103,7 +103,7 @@ export default function HomePage() {
                 </Card>
             </div>
 
-            <Card className="shadow-lg border-none">
+            <Card className="shadow-lg border-none overflow-x-auto">
                 <CardContent className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Recent Calculations</h2>
                 <table className="w-full text-left border-collapse">

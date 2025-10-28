@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { PlusCircle } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import { LoadingCard } from "@/components/loading-card";
+import { CreateInput } from "@/components/create-input";
 
 type Material = {
     id: number;
@@ -104,44 +105,34 @@ export default function MaterialsPage(){
                             </DialogHeader>
 
                             <div className="flex flex-col gap-3 py-2">
-                                <div>
-                                    <label className="block text-sm font-medium mb-1 text-gray-700">
-                                    Period Name
-                                    </label>
-                                    <Input
+
+                                <CreateInput
+                                    title="Period Name"
                                     placeholder="e.g. Q3 2026"
                                     value={form.period}
                                     onChange={(e) =>
                                         setForm((prev) => ({ ...prev, period: e.target.value }))
                                     }
-                                    />
-                                </div>
+                                />
 
-                                <div>
-                                    <label className="block text-sm font-medium mb-1 text-gray-700">
-                                    Start Date
-                                    </label>
-                                    <Input
+                                <CreateInput
+                                    title="Start Date"
                                     type="date"
                                     value={form.startDate}
                                     onChange={(e) =>
                                         setForm((prev) => ({ ...prev, startDate: e.target.value }))
                                     }
-                                    />
-                                </div>
+                                />
 
-                                <div>
-                                    <label className="block text-sm font-medium mb-1 text-gray-700">
-                                    End Date
-                                    </label>
-                                    <Input
+                                <CreateInput
+                                    title="End Date"
                                     type="date"
                                     value={form.endDate}
                                     onChange={(e) =>
                                         setForm((prev) => ({ ...prev, endDate: e.target.value }))
                                     }
-                                    />
-                                </div>
+                                />
+                                
                             </div>
 
                             <DialogFooter className="flex justify-end gap-2 mt-3">

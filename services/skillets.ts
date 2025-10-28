@@ -26,6 +26,14 @@ export const update = async (id: number, data: any): Promise<Skillet> => {
 
 }
 
+export const create = async(data: any): Promise<Skillet> => {
+    
+    const res = await axiosInstance.post(ApiRoutes.SKILLETS, data)
+
+    return res.data
+    
+}
+
 export const find = async (filters: {
     format: number;
     knife: string;
