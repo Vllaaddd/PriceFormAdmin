@@ -22,6 +22,9 @@ export async function POST(req: NextRequest){
                 smallPrice: Number(smallPrice),
                 mediumPrice: Number(mediumPrice),
                 largePrice: Number(largePrice),
+                smallDescription: '',
+                mediumDescription: '',
+                largeDescription: '',
             }
         });
 
