@@ -79,10 +79,10 @@ export default function CalculationsEditPage(){
 
         const { density, costPerKg } = await Api.periods.find({
             period: period || "",
-            material: material || "",
+            material: material === 'Baking paper' ? 'BP' : material || '',
         })
 
-        if (materialWidth && materialThickness && materialLength && density && material !== 'BP') {
+        if (materialWidth && materialThickness && materialLength && density && materialName !== 'BP') {
             const materialWeight = materialWidth * materialThickness * materialLength * Number(density) / 1000000
             materialCost = materialWeight * Number(costPerKg)
         }else{
@@ -169,7 +169,15 @@ export default function CalculationsEditPage(){
         }
 
         const totalPricePerRoll = Number(materialCost) + Number(WVPerRoll) + Number(skilletPrice) + Number(corePrice)
-        const totalPrice = totalPricePerRoll * (totalOrderInRolls || 0)
+        let totalPrice = totalPricePerRoll * (totalOrderInRolls || 0);
+
+        if(totalOrderInRolls && totalOrderInRolls <= 30000){
+            totalPrice = totalPrice + (totalPrice / 100 * 7)
+        }else if(totalOrderInRolls && (totalOrderInRolls > 30000 && totalOrderInRolls <= 200000)){
+            totalPrice = totalPrice + (totalPrice / 100 * 5)
+        }else if(totalOrderInRolls && totalOrderInRolls > 200000){
+            totalPrice = totalPrice + (totalPrice / 100 * 3)
+        }
 
         return { materialCost, WVPerRoll, skilletPrice, skillet: skilletName, corePrice, core: coreName, totalPricePerRoll, totalPrice }
     }

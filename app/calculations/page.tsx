@@ -29,7 +29,7 @@ export default function CalculationsEditPage() {
         Swal.fire({
             title: `Do you want to delete calculation?`,
             showCancelButton: true,
-            confirmButtonText: "Save",
+            confirmButtonText: "Delete",
             cancelButtonColor: 'red'
         }).then( async (result) => {
             if (result.isConfirmed) {
@@ -99,8 +99,9 @@ export default function CalculationsEditPage() {
                                                         >
                                                         Edit
                                                         </Button>
-                                                </Link>
+                                                    </Link>
                                                     <Button
+                                                        className="cursor-pointer"
                                                         variant="destructive"
                                                         size="sm"
                                                         onClick={() => handleDelete(calc.id)}
