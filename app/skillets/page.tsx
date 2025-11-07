@@ -188,7 +188,7 @@ export default function SkilletsPage() {
                         </DialogContent>
                     </Dialog>
 
-                    <Dialog open={isPriceRangeDialogOpen} onOpenChange={setIsPriceRangeDialogOpen}>
+                    {/* <Dialog open={isPriceRangeDialogOpen} onOpenChange={setIsPriceRangeDialogOpen}>
                         <DialogTrigger asChild className="cursor-pointer">
                             <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all duration-200">
                                 <PlusCircle className="w-4 h-4" />
@@ -237,7 +237,7 @@ export default function SkilletsPage() {
                                 </Button>
                             </DialogFooter>
                         </DialogContent>
-                    </Dialog>
+                    </Dialog> */}
                 </div>                
 
                 {skillets?.length > 0 ? (
