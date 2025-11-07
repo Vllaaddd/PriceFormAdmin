@@ -35,7 +35,7 @@ export default function Layout({ children, geistSans, geistMono, session }: { ch
                 className={`${geistSans.variable} ${geistMono.variable} antialiased flex`}
             >
                 <div className="fixed left-0 top-0 h-full z-50">
-                <SidePanelClient session={session} />
+                    <SidePanelClient session={session} />
                 </div>
         
                 <main className="ml-0 lg:ml-72 flex-1 h-full overflow-y-auto bg-gray-50">

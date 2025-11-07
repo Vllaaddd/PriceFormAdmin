@@ -45,6 +45,14 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
 
   }, [])
 
+  useEffect(() => {
+    if (isOpen) {
+      const original = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = original; };
+    }
+  }, [isOpen]);
+
   return (
     <>
       <div className={`lg:hidden top-4 right-4 z-50 ${isOpen ? 'hidden' : 'fixed'}`}>
@@ -121,7 +129,7 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
               </button>
             </div>
 
-            <div className="flex flex-col gap-4 text-lg">
+            <div className="flex flex-col text-lg overflow-y-auto px-6 py-6 space-y-4 pr-8 -mr-8">
               {(user && admins.find(a => a.email === session?.user?.email)) ? (
                 <>
                   <Link href="/" onClick={() => setIsOpen(false)}><Title active={pathname === '/'} title="Home" /></Link>
@@ -134,20 +142,18 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
                   <Link href="/update-prices" onClick={() => setIsOpen(false)}><Title active={pathname === '/update-prices'} title="Update prices" /></Link>
                   <Link href="/admins" onClick={() => setIsOpen(false)}><Title active={pathname === '/admins'} title="Admins" /></Link>
 
-                  {user && (
-                    <div className="flex flex-col items-center gap-3 mt-10">
-                      <div className="relative w-16 h-16">
-                        <Image
-                          src={user.image || "/default-avatar.png"}
-                          alt={user.name || "User"}
-                          fill
-                          className="object-cover rounded-full border border-blue-500 shadow-sm"
-                        />
-                      </div>
-                      <p className="text-base font-medium text-gray-200">{user.name}</p>
-                      <p className="text-xs text-gray-400">{user.email}</p>
+                  <div className="flex flex-col items-center gap-3 mt-10">
+                    <div className="relative w-16 h-16">
+                      <Image
+                        src={user.image || "/default-avatar.png"}
+                        alt={user.name || "User"}
+                        fill
+                        className="object-cover rounded-full border border-blue-500 shadow-sm"
+                      />
                     </div>
-                  )}
+                    <p className="text-base font-medium text-gray-200">{user.name}</p>
+                    <p className="text-xs text-gray-400">{user.email}</p>
+                  </div>
 
                   <button onClick={handleSignOut} className="mt-6 text-left">
                     <Title active={false} title="Sign Out" />
