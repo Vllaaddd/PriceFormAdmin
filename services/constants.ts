@@ -8,4 +8,5 @@ export enum ApiRoutes{
     PERIODS = '/api/periods',
     RECIPIENTS = '/api/email-recipients',
     ADMINS = '/api/admins',
+    PRICETIERS = '/api/price-tiers',
 }

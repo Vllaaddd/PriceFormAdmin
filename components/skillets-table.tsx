@@ -1,28 +1,57 @@
+import { SkilletWithPrices } from "@/prisma/types";
 import { Api } from "@/services/api-client";
-import { Skillet } from "@prisma/client";
-import { FC, useState } from "react";
+import { PriceTier } from "@prisma/client";
+import { FC, useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 
 interface Props{
-    skillets: Skillet[];
+    skillets: SkilletWithPrices[];
 }
 
 export const SkilletsTable: FC<Props> = ({ skillets }) => {
 
-    const [price, setPrice] = useState<Record<number, { small: string; medium: string; large: string; }>>({})
+    const [priceTiers, setPriceTiers] = useState<PriceTier[]>([])
+    const [draft, setDraft] = useState<Record<string, string>>({});
 
-    const handelPriceChange = async (id: number, price: string, type: string) => {
+    useEffect(() => {
 
-        setPrice((prev) => ({
-            ...prev,
-            [id]: {
-                ...prev[id],
-                [type === "smallPrice" ? "small" : type === "mediumPrice" ? "medium" : "large"]: price
+        const fetchPriceTiers = async () => {
+
+            try {
+                
+                const tiers = await Api.skillets.getAllTiers()
+                tiers.sort((a: PriceTier, b: PriceTier) => a.minQty - b.minQty);
+                setPriceTiers(tiers)
+
+            } catch (error) {
+                console.error(error)
             }
-        }))
 
-        await Api.skillets.update(Number(id), { [type]: Number(price) })
+        }
 
-    }
+        fetchPriceTiers()
+
+    }, [])
+
+    const findPrice = (skillet: SkilletWithPrices, tierId: number) =>
+        skillet.tierPrices.find((tp) => tp.tierId === tierId)?.price;
+
+    const handleChange = async (skilletId: number, tierId: number, value: string) => {
+        setDraft((prev) => ({ ...prev, [`${skilletId}:${tierId}`]: value }));
+
+        const price = Number(value);
+        if (Number.isNaN(price)) {
+            toast.error("Price must be a number");
+            return;
+        }
+
+        try {
+            await Api.skillets.setTierPrice({skilletId, tierId, price});
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to save");
+        }
+    };
 
     return(
         <div className="mb-16">
@@ -34,15 +63,13 @@ export const SkilletsTable: FC<Props> = ({ skillets }) => {
                             <th className="px-5 py-3">Format</th>
                             <th className="px-5 py-3">Knife</th>
                             <th className="px-5 py-3">Density</th>
-                            <th className="px-5 py-3">30k-200k</th>
-                            <th className="px-5 py-3">200k-500k</th>
-                            <th className="px-5 py-3">500k-1m</th>
+                            {priceTiers?.map(priceTier => (
+                                <th className="px-5 py-3" key={priceTier.id}>{priceTier.minQty}-{priceTier.maxQty}</th>
+                            ))}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                         {skillets?.map((skillet, index) => {
-
-                            const current = price[skillet.id] || {};
 
                             return (
                                 <tr
@@ -55,42 +82,32 @@ export const SkilletsTable: FC<Props> = ({ skillets }) => {
                                     <td className="px-5 py-3 font-medium">{skillet.format}</td>
                                     <td className="px-5 py-3">{skillet.knife}</td>
                                     <td className="px-5 py-3">{skillet.density}</td>
-                                    <td>
-                                        <input
-                                            type="string"
-                                            value={current.small ?? skillet.smallPrice}
-                                            onChange={(e) =>
-                                                handelPriceChange( skillet.id, e.target.value, 'smallPrice' )
-                                            }
-                                            className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                                        />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="string"
-                                            value={current.medium ?? skillet.mediumPrice}
-                                            onChange={(e) =>
-                                                handelPriceChange( skillet.id, e.target.value, 'mediumPrice' )
-                                            }
-                                            className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                                        />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="string"
-                                            value={current.large ?? skillet.largePrice}
-                                            onChange={(e) =>
-                                                handelPriceChange( skillet.id, e.target.value, 'mediumPrice' )
-                                            }
-                                            className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                                        />
-                                    </td>
+                                    {priceTiers.map((tierPrice) => {
+                                        const key = `${skillet.id}:${tierPrice.id}`;
+                                        const value =
+                                            draft[key] !== undefined
+                                            ? draft[key]
+                                            : String(findPrice(skillet, tierPrice.id) ?? "");
+
+                                        return (
+                                            <td key={tierPrice.id} className="px-5 py-3">
+                                            <input
+                                                type="text"
+                                                value={value}
+                                                onChange={(e) => handleChange(skillet.id, tierPrice.id, e.target.value)}
+                                                className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                                                placeholder="—"
+                                            />
+                                            </td>
+                                        );
+                                    })}
                                 </tr>
                             );
                         })}
                     </tbody>
                 </table>
             </div>
+            <ToastContainer />
         </div>
     )
 }

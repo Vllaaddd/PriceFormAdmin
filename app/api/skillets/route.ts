@@ -3,7 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(){
 
-    const skillets = await prisma.skillet.findMany()
+    const skillets = await prisma.skillet.findMany({
+        include: {
+            tierPrices: true
+        }
+    })
 
     return NextResponse.json(skillets)
 }
@@ -11,7 +15,7 @@ export async function GET(){
 export async function POST(req: NextRequest){
 
     try {
-        const { article, format, knife, density, smallPrice, mediumPrice, largePrice } = await req.json();
+        const { article, format, knife, density } = await req.json();
 
         const newSkillet = await prisma.skillet.create({
             data: {
@@ -19,12 +23,6 @@ export async function POST(req: NextRequest){
                 format: Number(format),
                 knife,
                 density: Number(density),
-                smallPrice: Number(smallPrice),
-                mediumPrice: Number(mediumPrice),
-                largePrice: Number(largePrice),
-                smallDescription: '',
-                mediumDescription: '',
-                largeDescription: '',
             }
         });
 

@@ -146,12 +146,10 @@ export default function CalculationsEditPage(){
         let skilletName = skillet.article;
         let skilletPrice = 0;
 
-        if(totalOrderInRolls && totalOrderInRolls > 30000 && totalOrderInRolls <= 200000){
-            skilletPrice = skillet.smallPrice
-        }else if(totalOrderInRolls && totalOrderInRolls > 200000 && totalOrderInRolls <= 500000){
-            skilletPrice = skillet.mediumPrice
-        }else if(totalOrderInRolls && totalOrderInRolls > 500000 && totalOrderInRolls <= 1000000){
-            skilletPrice = skillet.largePrice
+        if (skillet && totalOrderInRolls) {
+            const tierPrice = skillet?.tierPrices?.find((tp) => totalOrderInRolls > tp.tier.minQty && totalOrderInRolls <= tp.tier.maxQty);
+
+            skilletPrice = tierPrice ? tierPrice.price : 0;
         }
 
         const core = await Api.cores.find({ length: materialWidth || 0, type: roll || '' })

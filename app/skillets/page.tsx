@@ -5,7 +5,6 @@ import { LoadingCard } from "@/components/loading-card";
 import { SkilletsTable } from "@/components/skillets-table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Api } from "@/services/api-client";
 import { Skillet } from "@prisma/client";
 import { PlusCircle } from "lucide-react";
@@ -16,15 +15,21 @@ export default function SkilletsPage() {
 
     const [skillets, setSkillets] = useState<Skillet[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isPriceRangeDialogOpen, setIsPriceRangeDialogOpen] = useState(false);
 
     const [form, setForm] = useState({
-        article: "",
+        article: '',
         format: '',
         knife: '',
         density: '',
         smallPrice: '',
         mediumPrice: '',
         largePrice: '',
+    });
+
+    const [priceRangeForm, setPriceRangeForm] = useState({
+        minPrice: 0,
+        maxPrice: 0,
     });
     
     useEffect(() => {
@@ -56,6 +61,24 @@ export default function SkilletsPage() {
         } catch (error) {
             console.error(error);
             toast.error("Failed to create skillet")
+        }
+    };
+
+    const handleCreatePriceRange = async () => {
+        if (!priceRangeForm.minPrice || !priceRangeForm.maxPrice) {
+            toast.error('Please fill all fields!')
+            return;
+        }
+
+        try {
+            // const newSkillet = await Api.skillets.create(priceRangeForm)
+            // setSkillets(prev => [...prev, newSkillet])
+            toast.success(`New price range created!`)
+            setIsPriceRangeDialogOpen(false);
+            setPriceRangeForm({ minPrice: 0, maxPrice: 0});
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to create price range")
         }
     };
     
@@ -164,10 +187,61 @@ export default function SkilletsPage() {
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
-                </div>
+
+                    <Dialog open={isPriceRangeDialogOpen} onOpenChange={setIsPriceRangeDialogOpen}>
+                        <DialogTrigger asChild className="cursor-pointer">
+                            <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all duration-200">
+                                <PlusCircle className="w-4 h-4" />
+                                New Price Range
+                            </Button>
+                        </DialogTrigger>
+
+                        <DialogContent className="sm:max-w-md">
+                            <DialogHeader>
+                                <DialogTitle>Create New Price Range</DialogTitle>
+                            </DialogHeader>
+
+                            <div className="flex flex-col gap-3 py-2">
+                                <CreateInput
+                                    title="Minimum quantity"
+                                    placeholder="e.g. 100000"
+                                    value={form.article}
+                                    onChange={(e) =>
+                                        setForm((prev) => ({ ...prev, article: e.target.value }))
+                                    }
+                                />
+
+                                <CreateInput
+                                    title="Maximum quantity"
+                                    placeholder="e.g. 500000"
+                                    value={form.format}
+                                    onChange={(e) =>
+                                        setForm((prev) => ({ ...prev, format: e.target.value }))
+                                    }
+                                />
+                            </div>
+
+                            <DialogFooter className="flex justify-end gap-2 mt-3">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setIsPriceRangeDialogOpen(false)}
+                                    className="cursor-pointer"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+                                    onClick={handleCreatePriceRange}
+                                >
+                                    Create
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>                
 
                 {skillets?.length > 0 ? (
-                    <SkilletsTable skillets={skillets} />
+                    <SkilletsTable skillets={skillets as any} />
                 ) : (
                     <LoadingCard text="Loading skillets..." />
                 )}
