@@ -1,8 +1,8 @@
-import { FC } from "react";
+import { FC, JSX } from "react";
 import { Input } from "./ui/input";
 
 type Props = {
-    title: string,
+    title: string | JSX.Element,
     placeholder?: string,
     value: string | number,
     type?: string,

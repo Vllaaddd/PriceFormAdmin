@@ -39,3 +39,22 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
     }
 
 }
+
+export async function DELETE(req: NextRequest, context: { params: Promise<{ id: string }> }){
+  const { id } = await context.params;
+
+  try {
+    const skillet = await prisma.skillet.delete({
+      where: { id: Number(id) },
+    });
+
+    if (!skillet) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(skillet);
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Error deleting skillet" }, { status: 500 });
+  }
+}

@@ -79,8 +79,8 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
               <Link href="/cores"><Title active={pathname === '/cores'} title="Cores" /></Link>
               <Link href="/calculations"><Title active={pathname === '/calculations'} title="Calculations" /></Link>
               <Link href="/email-recipients"><Title active={pathname === '/email-recipients'} title="Email recipients" /></Link>
-              <Link href="/update-prices"><Title active={pathname === '/update-prices'} title="Update prices" /></Link>
               <Link href="/admins"><Title active={pathname === '/admins'} title="Admins" /></Link>
+              <Link href="/update-prices"><Title active={pathname === '/update-prices'} title="Update prices" /></Link>
 
               {user && (
                 <div className="flex flex-col items-center gap-3 mt-10">
@@ -139,8 +139,8 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
                   <Link href="/cores" onClick={() => setIsOpen(false)}><Title active={pathname === '/cores'} title="Cores" /></Link>
                   <Link href="/calculations" onClick={() => setIsOpen(false)}><Title active={pathname === '/calculations'} title="Calculations" /></Link>
                   <Link href="/email-recipients" onClick={() => setIsOpen(false)}><Title active={pathname === '/email-recipients'} title="Email recipients" /></Link>
-                  <Link href="/update-prices" onClick={() => setIsOpen(false)}><Title active={pathname === '/update-prices'} title="Update prices" /></Link>
                   <Link href="/admins" onClick={() => setIsOpen(false)}><Title active={pathname === '/admins'} title="Admins" /></Link>
+                  <Link href="/update-prices" onClick={() => setIsOpen(false)}><Title active={pathname === '/update-prices'} title="Update prices" /></Link>
 
                   <div className="flex flex-col items-center gap-3 mt-10">
                     <div className="relative w-16 h-16">

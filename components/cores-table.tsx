@@ -1,4 +1,5 @@
 import { Api } from "@/services/api-client";
+import { Trash2 } from "lucide-react";
 import { FC, useState } from "react";
 
 type Core = {
@@ -13,9 +14,10 @@ type Core = {
 
 interface Props{
     cores: Core[];
+    onDeleteCore?: (id: string) => Promise<void>;
 }
 
-export const CoresTable: FC<Props> = ({ cores }) => {
+export const CoresTable: FC<Props> = ({ cores, onDeleteCore }) => {
 
     const [price, setPrice] = useState<Record<number, string>>({})
 
@@ -41,6 +43,7 @@ export const CoresTable: FC<Props> = ({ cores }) => {
                             <th className="px-5 py-3 text-center">Dimensions</th>
                             <th className="px-5 py-3 text-center">Type</th>
                             <th className="px-5 py-3 text-center">Price</th>
+                            <th className="px-5 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -69,6 +72,20 @@ export const CoresTable: FC<Props> = ({ cores }) => {
                                         }
                                         className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                                     />
+                                </td>
+                                <td className="px-5 py-3">
+                                    <div className="flex justify-center">
+                                        <button
+                                            type="button"
+                                            title="Delete core"
+                                            aria-label="Delete core"
+                                            onClick={() => onDeleteCore?.(String(core.id))}
+                                            className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-red-600 hover:text-red-700 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-200 transition cursor-pointer"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                            <span className="hidden sm:inline">Delete</span>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}

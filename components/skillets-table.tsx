@@ -3,35 +3,20 @@ import { Api } from "@/services/api-client";
 import { PriceTier } from "@prisma/client";
 import { FC, useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
+import { Label } from "./label";
+import { Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
 
 interface Props{
     skillets: SkilletWithPrices[];
+    tiers: PriceTier[];
+    onDeleteSkillet?: (id: string) => Promise<void>;
+    onDeleteTier?: (id: string) => Promise<void>;
 }
 
-export const SkilletsTable: FC<Props> = ({ skillets }) => {
+export const SkilletsTable: FC<Props> = ({ skillets, tiers, onDeleteSkillet, onDeleteTier }) => {
 
-    const [priceTiers, setPriceTiers] = useState<PriceTier[]>([])
     const [draft, setDraft] = useState<Record<string, string>>({});
-
-    useEffect(() => {
-
-        const fetchPriceTiers = async () => {
-
-            try {
-                
-                const tiers = await Api.skillets.getAllTiers()
-                tiers.sort((a: PriceTier, b: PriceTier) => a.minQty - b.minQty);
-                setPriceTiers(tiers)
-
-            } catch (error) {
-                console.error(error)
-            }
-
-        }
-
-        fetchPriceTiers()
-
-    }, [])
 
     const findPrice = (skillet: SkilletWithPrices, tierId: number) =>
         skillet.tierPrices.find((tp) => tp.tierId === tierId)?.price;
@@ -60,12 +45,26 @@ export const SkilletsTable: FC<Props> = ({ skillets }) => {
                     <thead className="bg-gray-50 text-gray-900 text-sm uppercase font-medium">
                         <tr>
                             <th className="px-5 py-3">Article</th>
-                            <th className="px-5 py-3">Format</th>
+                            <th className="px-5 py-3">Format (mm)</th>
                             <th className="px-5 py-3">Knife</th>
                             <th className="px-5 py-3">Density</th>
-                            {priceTiers?.map(priceTier => (
-                                <th className="px-5 py-3" key={priceTier.id}>{priceTier.minQty}-{priceTier.maxQty}</th>
+                            {tiers?.map((tier) => (
+                                <th key={tier.id} className="px-5 py-3">
+                                    <div className="flex items-center gap-2">
+                                        <Label tier={tier} />
+                                        <button
+                                            type="button"
+                                            title="Delete price tier"
+                                            aria-label="Delete price tier"
+                                            onClick={() => onDeleteTier?.(String(tier.id))}
+                                            className="ml-1 inline-flex items-center rounded-lg p-1.5 text-red-600 hover:text-red-700 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-200 transition cursor-pointer"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                </th>
                             ))}
+                            <th className="px-8 py-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -82,7 +81,7 @@ export const SkilletsTable: FC<Props> = ({ skillets }) => {
                                     <td className="px-5 py-3 font-medium">{skillet.format}</td>
                                     <td className="px-5 py-3">{skillet.knife}</td>
                                     <td className="px-5 py-3">{skillet.density}</td>
-                                    {priceTiers.map((tierPrice) => {
+                                    {tiers.map((tierPrice) => {
                                         const key = `${skillet.id}:${tierPrice.id}`;
                                         const value =
                                             draft[key] !== undefined
@@ -101,6 +100,20 @@ export const SkilletsTable: FC<Props> = ({ skillets }) => {
                                             </td>
                                         );
                                     })}
+                                    <td className="px-5 py-3">
+                                        <div className="flex">
+                                            <button
+                                                type="button"
+                                                title="Delete skillet"
+                                                aria-label="Delete skillet"
+                                                onClick={() => onDeleteSkillet?.(String(skillet.id))}
+                                                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-red-600 hover:text-red-700 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-200 transition cursor-pointer"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                                <span className="hidden sm:inline">Delete</span>
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             );
                         })}

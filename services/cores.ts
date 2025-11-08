@@ -34,6 +34,14 @@ export const create = async(data: any): Promise<Core> => {
     
 }
 
+export const deleteCore = async(id: string): Promise<Core> => {
+
+    const { data } = await axiosInstance.delete(`${ApiRoutes.CORES}/${id}`)
+
+    return data
+
+}
+
 export const find = async (filters: {
     length: number;
     type: string;

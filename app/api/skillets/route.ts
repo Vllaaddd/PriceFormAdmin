@@ -15,7 +15,7 @@ export async function GET(){
 export async function POST(req: NextRequest){
 
     try {
-        const { article, format, knife, density } = await req.json();
+        const { article, format, knife, density, prices } = await req.json();
 
         const newSkillet = await prisma.skillet.create({
             data: {
@@ -23,7 +23,14 @@ export async function POST(req: NextRequest){
                 format: Number(format),
                 knife,
                 density: Number(density),
-            }
+                tierPrices: {
+                    create: (Array.isArray(prices) ? prices : []).map(p => ({
+                        tierId: p.tierId,
+                        price: p.price,
+                    }
+                ))}
+            },
+            include: { tierPrices: { include: { tier: true } } },
         });
 
         return NextResponse.json(newSkillet, { status: 201 });
@@ -32,4 +39,11 @@ export async function POST(req: NextRequest){
         return NextResponse.json({ message: "Error creating skillet" }, { status: 500 });
     }
 
+}
+
+export async function DELETE(req: NextRequest){
+
+    const calculation = await prisma.calculation.deleteMany()
+
+    return NextResponse.json(calculation)
 }

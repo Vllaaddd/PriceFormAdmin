@@ -1,4 +1,4 @@
-import { PriceTier } from "@prisma/client"
+import { PriceTier, Skillet } from "@prisma/client"
 import { axiosInstance } from "./instance"
 import { ApiRoutes } from "./constants"
 import { SkilletWithPrices } from "@/prisma/types"
@@ -45,9 +45,33 @@ export const getAllTiers = async(): Promise<PriceTier[]> => {
 
 export const setTierPrice = async(data: any): Promise<PriceTier> =>{
 
+    const res = await axiosInstance.patch(ApiRoutes.PRICETIERS, data)
+
+    return res.data
+
+}
+
+export const createPriceTier = async(data: any): Promise<PriceTier> => {
+
     const res = await axiosInstance.post(ApiRoutes.PRICETIERS, data)
 
     return res.data
+
+}
+
+export const deleteSkillet = async(id: string): Promise<Skillet> => {
+
+    const { data } = await axiosInstance.delete(`${ApiRoutes.SKILLETS}/${id}`)
+
+    return data
+
+}
+
+export const deletePriceTier = async(id: string): Promise<PriceTier> => {
+
+    const { data } = await axiosInstance.delete(`${ApiRoutes.PRICETIERS}/${id}`)
+
+    return data
 
 }
 

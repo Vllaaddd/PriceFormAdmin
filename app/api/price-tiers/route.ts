@@ -13,7 +13,7 @@ export async function GET(){
 
 }
 
-export async function POST(req: NextRequest){
+export async function PATCH(req: NextRequest){
 
     const { skilletId, tierId, price } = await req.json();
     const row = await prisma.skilletTierPrice.upsert({
@@ -24,5 +24,20 @@ export async function POST(req: NextRequest){
     });
     
     return NextResponse.json(row);
+
+}
+
+export async function POST(req: NextRequest){
+
+    const { minQty, maxQty } = await req.json();
+    console.log(minQty, maxQty)
+    const priceTier = await prisma.priceTier.create({
+        data: {
+            minQty,
+            maxQty 
+        }
+    })
+
+    return NextResponse.json(priceTier)
 
 }
