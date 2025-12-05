@@ -65,26 +65,26 @@ export default function CoresPage(){
 
     const handleDeleteCore = async (coreId: string) => {
     
-            Swal.fire({
-                title: `Do you want to delete core?`,
-                showCancelButton: true,
-                confirmButtonText: "Delete",
-                cancelButtonColor: 'red'
-            }).then( async (result) => {
-                if (result.isConfirmed) {
-                    try {
-                        await Api.cores.deleteCore(coreId)
-                        setCores((prev) => prev.filter((c) => c.id !== Number(coreId)));
-                        toast.success("Core deleted!");
-                    } catch (error) {
-                        toast.error("Failed to delete core.");
-                    }
-                } else if (result.isDenied) {
-                    Swal.fire("Changes are not saved", "", "info");
-                    return
+        Swal.fire({
+            title: `Do you want to delete core?`,
+            showCancelButton: true,
+            confirmButtonText: "Delete",
+            cancelButtonColor: 'red'
+        }).then( async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await Api.cores.deleteCore(coreId)
+                    setCores((prev) => prev.filter((c) => c.id !== Number(coreId)));
+                    toast.success("Core deleted!");
+                } catch (error) {
+                    toast.error("Failed to delete core.");
                 }
-            });
-        };
+            } else if (result.isDenied) {
+                Swal.fire("Changes are not saved", "", "info");
+                return
+            }
+        });
+    };
 
     return(
         <div className='min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 py-10 px-6'>

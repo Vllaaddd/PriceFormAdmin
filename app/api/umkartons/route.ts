@@ -3,43 +3,47 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(){
 
-    const skillets = await prisma.skillet.findMany({
+    const umkartons = await prisma.umkarton.findMany({
         include: {
             tierPrices: true
         }
     })
 
-    return NextResponse.json(skillets)
+    return NextResponse.json(umkartons)
 }
 
 export async function POST(req: NextRequest){
 
     try {
-        const { article, height, depth, width, price, knife, density, prices } = await req.json();
+        const { article, height, depth, width, price, prices, fsDimension, displayCarton, color, deckel, fsQty, bedoManu } = await req.json();
 
-        const existingSkillet = await prisma.skillet.findFirst({
+        const existingUmkarton = await prisma.umkarton.findFirst({
             where: { article: article }
         });
 
-        if (existingSkillet) {
-            return NextResponse.json({ message: "Skillet already exists", skipped: true }, { status: 200 });
+        if (existingUmkarton) {
+            return NextResponse.json({ message: "Umkarton already exists", skipped: true }, { status: 200 });
         }
 
-        const newSkillet = await prisma.skillet.create({
+        const newUmkarton = await prisma.umkarton.create({
             data: {
                 article,
-                knife,
+                fsDimension: Number(fsDimension) || 0,
+                displayCarton: displayCarton || "",
+                color: color || "",
+                deckel: deckel || "",
+                fsQty: Number(fsQty) || 0,
+                bedoManu: bedoManu || "",
                 height: Number(height) || 0, 
                 depth: Number(depth) || 0,
                 width: Number(width) || 0,
                 basePrice: Number(price) || 0,
-                density: Number(density) || 0,
             }
         });
 
         if (Array.isArray(prices) && prices.length > 0) {
             for (const p of prices) {
-                let tier = await prisma.priceTier.findFirst({
+                let tier = await prisma.umkartonPriceTier.findFirst({
                     where: {
                         minQty: p.min,
                         maxQty: p.max
@@ -47,7 +51,7 @@ export async function POST(req: NextRequest){
                 });
 
                 if (!tier) {
-                    tier = await prisma.priceTier.create({
+                    tier = await prisma.umkartonPriceTier.create({
                         data: {
                             minQty: p.min,
                             maxQty: p.max
@@ -55,9 +59,9 @@ export async function POST(req: NextRequest){
                     });
                 }
 
-                await prisma.skilletTierPrice.create({
+                await prisma.umkartonTierPrice.create({
                     data: {
-                        skilletId: newSkillet.id,
+                        umkartonId: newUmkarton.id,
                         tierId: tier.id,
                         price: p.price
                     }
@@ -65,10 +69,10 @@ export async function POST(req: NextRequest){
             }
         }
 
-        return NextResponse.json(newSkillet, { status: 201 });
+        return NextResponse.json(newUmkarton, { status: 201 });
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ message: "Error creating skillet" }, { status: 500 });
+        return NextResponse.json({ message: "Error creating umkarton" }, { status: 500 });
     }
 
 }

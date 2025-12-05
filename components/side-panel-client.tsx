@@ -77,6 +77,8 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
               <Link href="/materials"><Title active={pathname === '/materials'} title="Materials" /></Link>
               <Link href="/skillets"><Title active={pathname === '/skillets'} title="Skillets" /></Link>
               <Link href="/cores"><Title active={pathname === '/cores'} title="Cores" /></Link>
+              <Link href="/umkartons" onClick={() => setIsOpen(false)}><Title active={pathname === '/umkartons'} title="Umkartons" /></Link>
+              <Link href="/deckels" onClick={() => setIsOpen(false)}><Title active={pathname === '/deckels'} title="Deckels" /></Link>
               <Link href="/calculations"><Title active={pathname === '/calculations'} title="Calculations" /></Link>
               <Link href="/email-recipients"><Title active={pathname === '/email-recipients'} title="Email recipients" /></Link>
               <Link href="/admins"><Title active={pathname === '/admins'} title="Admins" /></Link>
@@ -137,6 +139,8 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
                   <Link href="/materials" onClick={() => setIsOpen(false)}><Title active={pathname === '/materials'} title="Materials" /></Link>
                   <Link href="/skillets" onClick={() => setIsOpen(false)}><Title active={pathname === '/skillets'} title="Skillets" /></Link>
                   <Link href="/cores" onClick={() => setIsOpen(false)}><Title active={pathname === '/cores'} title="Cores" /></Link>
+                  <Link href="/umkartons" onClick={() => setIsOpen(false)}><Title active={pathname === '/umkartons'} title="Umkartons" /></Link>
+                  <Link href="/deckels" onClick={() => setIsOpen(false)}><Title active={pathname === '/deckels'} title="Deckels" /></Link>
                   <Link href="/calculations" onClick={() => setIsOpen(false)}><Title active={pathname === '/calculations'} title="Calculations" /></Link>
                   <Link href="/email-recipients" onClick={() => setIsOpen(false)}><Title active={pathname === '/email-recipients'} title="Email recipients" /></Link>
                   <Link href="/admins" onClick={() => setIsOpen(false)}><Title active={pathname === '/admins'} title="Admins" /></Link>

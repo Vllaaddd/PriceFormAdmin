@@ -6,6 +6,9 @@ import * as cores from './cores'
 import * as periods from './periods'
 import * as recipients from './recipients'
 import * as admins from './admins'
+import * as umkartons from './umkartons'
+import * as deckels from './deckels'
+import * as emailtext from './email-text'
 
 export const Api = {
     calculations,
@@ -16,4 +19,7 @@ export const Api = {
     periods,
     recipients,
     admins,
+    umkartons,
+    deckels,
+    emailtext,
 }

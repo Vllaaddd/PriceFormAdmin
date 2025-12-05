@@ -3,11 +3,11 @@
 import { CreateInput } from "@/components/create-input";
 import { Label } from "@/components/label";
 import { LoadingCard } from "@/components/loading-card";
-import { SkilletsTable } from "@/components/skillets-table";
+import { UmkartonsTable } from "@/components/umkartons-table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Api } from "@/services/api-client";
-import { PriceTier, Skillet } from "@prisma/client";
+import { PriceTier, Umkarton } from "@prisma/client";
 import { PlusCircle, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
@@ -22,8 +22,12 @@ interface RangeTier {
 
 interface ParsedRow {
     article: string;
-    knife: string;
-    density?: number;
+    fsDimension?: number;
+    displayCarton?: string;
+    color?: string;
+    deckel?: string;
+    fsQty?: number;
+    bedoManu?: string;
     height?: number;
     depth?: number;
     width?: number;
@@ -31,14 +35,14 @@ interface ParsedRow {
     prices?: RangeTier[];
 }
 
-export default function SkilletsPage() {
+export default function UmkartonsPage() {
 
-    const [skillets, setSkillets] = useState<Skillet[]>([]);
+    const [umkartons, setUmkartons] = useState<Umkarton[]>([]);
     const [priceTiers, setPriceTiers] = useState<PriceTier[]>([])
     const [rows, setRows] = useState<ParsedRow[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isPriceTierDialogOpen, setIsPriceTierDialogOpen] = useState(false);
-    const [newSkilletPrices, setNewSkilletPrices] = useState<Record<string, string>>({})
+    const [newUmkartonPrices, setNewUmkartonPrices] = useState<Record<string, string>>({})
     const [loading, setLoading] = useState(false);
     const [created, setCreated] = useState(0);
 
@@ -60,10 +64,10 @@ export default function SkilletsPage() {
     useEffect(() => {
         async function fetchData() {
 
-            const skillets = await Api.skillets.getAll();
-            const tiers = await Api.skillets.getAllTiers()
+            const umkartons = await Api.umkartons.getAll();
+            const tiers = await Api.umkartons.getAllTiers()
 
-            setSkillets(skillets);
+            setUmkartons(umkartons);
 
             setPriceTiers(tiers.sort((a, b) => {
                 return a.minQty - b.minQty
@@ -73,14 +77,14 @@ export default function SkilletsPage() {
         fetchData();
     }, []);
 
-    const handleCreateSkillet = async () => {
+    const handleCreateUmkarton = async () => {
         if (!form.article || !form.width || !form.height || !form.depth || !form.knife || !form.density || !form.price) {
             toast.error('Please fill all fields!')
             return;
         }
 
         const missingCount = priceTiers.filter(
-            (t) => !String(newSkilletPrices[String(t.id)] ?? "").trim()
+            (t) => !String(newUmkartonPrices[String(t.id)] ?? "").trim()
         );
 
         if (missingCount.length > 0) {
@@ -92,7 +96,7 @@ export default function SkilletsPage() {
             .map((t) => ({
                 id: t.id,
                 label: `${t.minQty}-${t.maxQty}`,
-                raw: String(newSkilletPrices[String(t.id)]).replace(",", "."),
+                raw: String(newUmkartonPrices[String(t.id)]).replace(",", "."),
             }))
             .filter((x) => Number.isNaN(Number(x.raw)));
 
@@ -104,11 +108,11 @@ export default function SkilletsPage() {
         const formattedPrices = priceTiers.map((t) => ({
             min: t.minQty, 
             max: t.maxQty,
-            price: Number(String(newSkilletPrices[String(t.id)]).replace(",", ".")),
+            price: Number(String(newUmkartonPrices[String(t.id)]).replace(",", ".")),
         }));
 
         try {
-            const newSkillet = await Api.skillets.create({
+            const newUmkarton = await Api.umkartons.create({
                 article: form.article,
                 height: Number(form.height),
                 width: Number(form.width),
@@ -119,19 +123,19 @@ export default function SkilletsPage() {
                 prices: formattedPrices
             })
 
-            if ((newSkillet as any).skipped) {
-                toast.warning(`Skillet "${form.article}" already exists!`);
+            if ((newUmkarton as any).skipped) {
+                toast.warning(`Umkarton "${form.article}" already exists!`);
             } else {
-                setSkillets(prev => [newSkillet, ...prev])
-                toast.success(`New skillet "${form.article}" created!`)
+                setUmkartons(prev => [newUmkarton, ...prev])
+                toast.success(`New umkarton "${form.article}" created!`)
                 
                 setIsDialogOpen(false);
                 setForm({ article: "", height: "", width: "", depth: "", price: "", knife: "", density: ""});
-                setNewSkilletPrices({})
+                setNewUmkartonPrices({})
             }
         } catch (error) {
             console.error(error);
-            toast.error("Failed to create skillet")
+            toast.error("Failed to create umkarton")
         }
     };
 
@@ -142,7 +146,7 @@ export default function SkilletsPage() {
         }
 
         try {
-            const newTier = await Api.skillets.createPriceTier({ minQty: Number(priceTierForm.minPrice), maxQty: Number(priceTierForm.maxPrice) })
+            const newTier = await Api.umkartons.createPriceTier({ minQty: Number(priceTierForm.minPrice), maxQty: Number(priceTierForm.maxPrice) })
             setPriceTiers((prev) => [...prev, newTier].sort((a, b) => {
                 return a.minQty - b.minQty
             }))
@@ -165,7 +169,7 @@ export default function SkilletsPage() {
         }).then( async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await Api.skillets.deletePriceTier(tierId)
+                    await Api.umkartons.deletePriceTier(tierId)
                     setPriceTiers((prev) => prev.filter((t) => t.id !== Number(tierId)));
                     toast.success("Price tier deleted!");
                 } catch (error) {
@@ -178,20 +182,20 @@ export default function SkilletsPage() {
         });
     };
     
-    const handleDeleteSkillet = async (skilletId: string) => {
+    const handleDeleteUmkarton = async (umkartonId: string) => {
         Swal.fire({
-            title: `Do you want to delete skillet?`,
+            title: `Do you want to delete umkarton?`,
             showCancelButton: true,
             confirmButtonText: "Delete",
             cancelButtonColor: 'red'
         }).then( async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await Api.skillets.deleteSkillet(skilletId)
-                    setSkillets((prev) => prev.filter((s) => s.id !== Number(skilletId)));
-                    toast.success("Skillet deleted!");
+                    await Api.umkartons.deleteUmkarton(umkartonId)
+                    setUmkartons((prev) => prev.filter((s) => s.id !== Number(umkartonId)));
+                    toast.success("Umkarton deleted!");
                 } catch (error) {
-                    toast.error("Failed to delete skillet.");
+                    toast.error("Failed to delete umkarton.");
                 }
             } else if (result.isDenied) {
                 Swal.fire("Changes are not saved", "", "info");
@@ -217,10 +221,10 @@ export default function SkilletsPage() {
         reader.onload = async (e) => {
             const data = e.target?.result;
             const workbook = XLSX.read(data, { type: 'binary' });
-            const worksheet = workbook.Sheets['FS'];
+            const worksheet = workbook.Sheets['UK'];
             
             if(!worksheet) {
-                toast.error("Sheet 'FS' not found!");
+                toast.error("Sheet 'UK' not found!");
                 setLoading(false);
                 return;
             }
@@ -229,13 +233,17 @@ export default function SkilletsPage() {
 
             const parsedRows: ParsedRow[] = (jsonData as any[]).map((row) => {
                 const staticData = {
-                    article: row['Artikelnr']?.toString()?.trim() || '',
+                    article: row['Artikelnr']?.toString()?.trim(),
                     height: parseFloat(row['Height']) || undefined,
-                    knife: row['Säge']?.toString()?.trim() || '',
-                    density: parseFloat(row['Grammatur']) || undefined,
                     depth: parseFloat(row['Depth']) || undefined,
                     width: parseFloat(row['Width']) || undefined,
                     basePrice: parseFloat(row['Actual EPF price']) || undefined,
+                    fsDimension: parseFloat(row['FS dimension']) || undefined,
+                    displayCarton: row['Display carton']?.toString()?.trim() || undefined,
+                    color: row['Color']?.toString()?.trim() || undefined,
+                    deckel: row['Tray&deckel']?.toString()?.trim() || undefined,
+                    fsQty: parseInt(row['Qty of FS/box']) || undefined,
+                    bedoManu: row['Bedo/Manual']?.toString()?.trim() || undefined,
                 };
 
                 const tiers: RangeTier[] = [];
@@ -264,15 +272,19 @@ export default function SkilletsPage() {
                 if (!row.article) continue;
 
                 try {
-                    const result = await Api.skillets.create({
+                    const result = await Api.umkartons.create({
                         article: row.article,
                         height: row.height,
                         depth: row.depth,
                         width: row.width,
-                        knife: row.knife === 'nein' ? 'No knife' : row.knife === 'gebogen' ? 'V-type plastic' : row.knife === 'gerade' ? 'Straight plastic knife' : row.knife,
-                        density: row.density,
                         price: row.basePrice,
-                        prices: row.prices
+                        prices: row.prices,
+                        fsDimension: row.fsDimension,
+                        displayCarton: row.displayCarton,
+                        color: row.color,
+                        deckel: row.deckel,
+                        fsQty: row.fsQty,
+                        bedoManu: row.bedoManu,
                     });
 
                     if ((result as any).skipped) {
@@ -280,13 +292,14 @@ export default function SkilletsPage() {
                     } else {
                         createdCount++;
                         
-                        setSkillets(prev => [result, ...prev]); 
+                        setUmkartons(prev => [result, ...prev]); 
                         setCreated(prev => prev + 1);
                     }
 
                 } catch (err) {
+                    console.log(row)
                     console.error(`Error uploading ${row.article}`, err);
-                    toast.error(`Failed to upload skillet ${row.article}`);
+                    toast.error(`Failed to upload umkarton ${row.article}`);
                 }
             }
 
@@ -295,7 +308,7 @@ export default function SkilletsPage() {
             if (createdCount > 0 || skippedCount > 0) {
                 toast.success(`Upload complete! Created: ${createdCount}, Skipped: ${skippedCount}`);
             } else {
-                toast.info("No new skillets were added.");
+                toast.info("No new umkartons were added.");
             }
             
             if(fileInputRef.current) fileInputRef.current.value = '';
@@ -311,7 +324,7 @@ export default function SkilletsPage() {
                 <div className="flex flex-col items-center justify-center gap-4 mb-8">
 
                     <h1 className="text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-                        Skillets Overview
+                        Umkartons Overview
                     </h1>
 
                     <div className="flex items-center gap-10">
@@ -319,18 +332,18 @@ export default function SkilletsPage() {
                             <DialogTrigger asChild className="cursor-pointer">
                                 <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all duration-200">
                                     <PlusCircle className="w-4 h-4" />
-                                    New Skillet
+                                    New Umkarton
                                 </Button>
                             </DialogTrigger>
 
                             <DialogContent className="sm:max-w-md">
                                 <DialogHeader>
-                                    <DialogTitle>Create New Skillet</DialogTitle>
+                                    <DialogTitle>Create New Umkarton</DialogTitle>
                                 </DialogHeader>
 
                                 <div className="flex flex-col gap-3 py-2 max-h-[60vh] overflow-y-auto px-1">
                                     <CreateInput
-                                        title="Skillet article"
+                                        title="Umkarton article"
                                         placeholder="e.g. M69065"
                                         value={form.article}
                                         onChange={(e) =>
@@ -339,7 +352,7 @@ export default function SkilletsPage() {
                                     />
 
                                     <CreateInput
-                                        title="Skillet price"
+                                        title="Umkarton price"
                                         placeholder="e.g. 0.15"
                                         value={form.price}
                                         onChange={(e) =>
@@ -348,7 +361,7 @@ export default function SkilletsPage() {
                                     />
 
                                     <CreateInput
-                                        title="Skillet height"
+                                        title="Umkarton height"
                                         placeholder="e.g. 39 or 45"
                                         value={form.height}
                                         onChange={(e) =>
@@ -357,7 +370,7 @@ export default function SkilletsPage() {
                                     />
 
                                     <CreateInput
-                                        title="Skillet depth"
+                                        title="Umkarton depth"
                                         placeholder="e.g. 39 or 45"
                                         value={form.depth}
                                         onChange={(e) =>
@@ -366,7 +379,7 @@ export default function SkilletsPage() {
                                     />
 
                                     <CreateInput
-                                        title="Skillet width"
+                                        title="Umkarton width"
                                         placeholder="e.g. 39 or 45"
                                         value={form.width}
                                         onChange={(e) =>
@@ -375,7 +388,7 @@ export default function SkilletsPage() {
                                     />
 
                                     <CreateInput
-                                        title="Skillet knife"
+                                        title="Umkarton fs dimension"
                                         placeholder="e.g. Paper knife / No knife"
                                         value={form.knife}
                                         onChange={(e) =>
@@ -384,7 +397,7 @@ export default function SkilletsPage() {
                                     />
 
                                     <CreateInput
-                                        title="Skillet density"
+                                        title="Umkarton display carton"
                                         placeholder="e.g. 350"
                                         value={form.density}
                                         onChange={(e) =>
@@ -397,9 +410,9 @@ export default function SkilletsPage() {
                                             key={tier.id}
                                             title={<Label tier={tier} />}
                                             placeholder="e.g. 0.12"
-                                            value={newSkilletPrices[tier.id]}
+                                            value={newUmkartonPrices[tier.id]}
                                             onChange={(e) =>
-                                                setNewSkilletPrices((prev) => ({ ...prev, [tier.id]: e.target.value }))
+                                                setNewUmkartonPrices((prev) => ({ ...prev, [tier.id]: e.target.value }))
                                             }
                                         />
                                     ))}
@@ -415,7 +428,7 @@ export default function SkilletsPage() {
                                     </Button>
                                     <Button
                                         className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
-                                        onClick={handleCreateSkillet}
+                                        onClick={handleCreateUmkarton}
                                     >
                                         Create
                                     </Button>
@@ -490,7 +503,7 @@ export default function SkilletsPage() {
                                 className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all duration-200 cursor-pointer"
                             >
                                 <Upload className="w-4 h-4" />
-                                Load skillet table
+                                Load umkarton table
                             </Button>
                         </div>
                     </div>
@@ -498,10 +511,10 @@ export default function SkilletsPage() {
 
                 {loading === true ? (
                     <div>Loading... [{created} / {rows?.length}]</div>
-                ) : skillets?.length > 0 ? (
-                    <SkilletsTable skillets={skillets as any} tiers={priceTiers} onDeleteSkillet={handleDeleteSkillet} onDeleteTier={handleDeleteTier} />
+                ) : umkartons?.length > 0 ? (
+                    <UmkartonsTable umkartons={umkartons as any} tiers={priceTiers} onDeleteUmkarton={handleDeleteUmkarton} onDeleteTier={handleDeleteTier} />
                 ) : (
-                    <LoadingCard text="Loading skillets..." />
+                    <LoadingCard text="Loading umkartons..." />
                 )}
 
             </div>

@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(){
     
-    const priceTiers = await prisma.priceTier.findMany({
+    const priceTiers = await prisma.umkartonPriceTier.findMany({
         include: {
-            skilletPrices: true
+            UmkartonPrices: true
         }
     })
 
@@ -15,11 +15,11 @@ export async function GET(){
 
 export async function PATCH(req: NextRequest){
 
-    const { skilletId, tierId, price } = await req.json();
-    const row = await prisma.skilletTierPrice.upsert({
-        where: { skilletId_tierId: { skilletId, tierId } },
+    const { umkartonId, tierId, price } = await req.json();
+    const row = await prisma.umkartonTierPrice.upsert({
+        where: { umkartonId_tierId: { umkartonId, tierId } },
         update: { price },
-        create: { skilletId, tierId, price },
+        create: { umkartonId, tierId, price },
         include: { tier: true },
     });
     
@@ -30,7 +30,7 @@ export async function PATCH(req: NextRequest){
 export async function POST(req: NextRequest){
 
     const { minQty, maxQty } = await req.json();
-    const priceTier = await prisma.priceTier.create({
+    const priceTier = await prisma.umkartonPriceTier.create({
         data: {
             minQty,
             maxQty 

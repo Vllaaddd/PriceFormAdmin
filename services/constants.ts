@@ -9,4 +9,8 @@ export enum ApiRoutes{
     RECIPIENTS = '/api/email-recipients',
     ADMINS = '/api/admins',
     PRICETIERS = '/api/price-tiers',
+    UMKARTONSPRICETIERS = '/api/umkartons-price-tiers',
+    UMKARTONS = '/api/umkartons',
+    DECKELS = '/api/deckels',
+    EMAILTEXT = '/api/email-text',
 }

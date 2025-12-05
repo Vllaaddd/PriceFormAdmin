@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react"
 import { Api } from "@/services/api-client"
-import { PlusCircle } from "lucide-react"
+import { PlusCircle, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { EmailRecipient } from "@prisma/client"
+import { EmailRecipient, EmailText } from "@prisma/client"
 import { LoadingCard } from "@/components/loading-card"
 import Swal from "sweetalert2"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { toast, ToastContainer } from "react-toastify"
 import { CreateInput } from "@/components/create-input"
 
@@ -17,11 +16,14 @@ export default function EmailRecipientsPage(){
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [recipientName, setRecipientName] = useState("")
     const [recipientEmail, setRecipientEmail] = useState("")
+    const [emailText, setEmailText] = useState<EmailText>()
     
     useEffect(() => {
         async function fetchRecipients() {
             try {
                 const data = await Api.recipients.getAll()
+                const text = await Api.emailtext.getText()
+                setEmailText(text)
                 setRecipients(data)
             } catch (err) {
                 console.error(err)
@@ -70,6 +72,20 @@ export default function EmailRecipientsPage(){
                 }
             }
         });
+    }
+
+    const handelSave = async (text: string, id: number) => {
+
+        try{
+            const savedText = await Api.emailtext.updateText(text, id)
+            toast.success("Email text saved successfully!")
+        }catch(err){
+            console.error(err)
+            toast.error("Failed to save email text")
+        }
+        
+
+
     }
     
     return (
@@ -136,40 +152,62 @@ export default function EmailRecipientsPage(){
 
                 {recipients.length > 0 ? (
                     <div className="overflow-x-auto shadow-md rounded-2xl border border-gray-200 bg-white w-full">
-                    <table className="min-w-full text-sm text-left text-gray-700">
-                        <thead className="bg-gray-50 text-gray-900 text-sm uppercase font-medium">
-                        <tr>
-                            <th className="px-5 py-3">Name</th>
-                            <th className="px-5 py-3">Email</th>
-                            <th className="px-5 py-3 text-right">Delete recipient</th>
-                        </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                        {recipients.map((r, i) => (
-                            <tr
-                            key={r.id}
-                            className={`transition-colors ${
-                                i % 2 === 0 ? "bg-white" : "bg-gray-50"
-                            } hover:bg-blue-50`}
-                            >
-                            <td className="px-5 py-3">{r.name}</td>
-                            <td className="px-5 py-3">{r.email}</td>
-                            <td className="px-5 py-3 text-right">
-                                <button
-                                onClick={() => handleDelete(r.id)}
-                                className="text-red-600 hover:text-red-800 font-medium transition cursor-pointer"
-                                >
-                                Delete
-                                </button>
-                            </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
+                        <table className="min-w-full text-sm text-left text-gray-700">
+                            <thead className="bg-gray-50 text-gray-900 text-sm uppercase font-medium">
+                                <tr>
+                                    <th className="px-5 py-3">Name</th>
+                                    <th className="px-5 py-3">Email</th>
+                                    <th className="px-5 py-3 text-right">Delete recipient</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {recipients.map((r, i) => (
+                                    <tr
+                                    key={r.id}
+                                    className={`transition-colors ${
+                                        i % 2 === 0 ? "bg-white" : "bg-gray-50"
+                                    } hover:bg-blue-50`}
+                                    >
+                                        <td className="px-5 py-3">{r.name}</td>
+                                        <td className="px-5 py-3">{r.email}</td>
+                                        <td className="px-5 py-3 text-right">
+                                            <button
+                                                onClick={() => handleDelete(r.id)}
+                                                className="text-red-600 hover:text-red-800 font-medium transition cursor-pointer"
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 ) : (
                     <LoadingCard text="Loading recipients..." />
                 )}
+
+                <div className="flex justify-between w-full items-center mb-6">
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-4">
+                        Email Text
+                    </h1>
+
+                    <Button
+                        className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all duration-200 cursor-pointer"
+                        onClick={() => handelSave(emailText?.text || '', emailText?.id || 0)}
+                    >
+                        <Save className="w-4 h-4" />
+                        Save text
+                    </Button>
+                </div>
+
+                <textarea
+                    className="h-40 p-3 w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter your email text here..."
+                    value={emailText?.text}
+                    onChange={(e) => setEmailText(prev => prev ? { ...prev, text: e.target.value } : undefined)}
+                />
+
             </div>
             <ToastContainer />
         </div>
