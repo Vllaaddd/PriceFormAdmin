@@ -13,13 +13,13 @@ import { Admin } from "@prisma/client";
 
 type Props = {
   session: any;
+  isAdmin: boolean;
 };
 
-export const SidePanelClient: FC<Props> = ({ session }) => {
+export const SidePanelClient: FC<Props> = ({ session, isAdmin }) => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
-  const [admins, setAdmins] = useState<Admin[]>([]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -29,29 +29,14 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
   const user = session?.user;
 
   useEffect(() => {
-
-    const fetchAdmins = async () => {
-      try {
-        
-        const admins = await Api.admins.getAll();
-        setAdmins(admins);
-
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    fetchAdmins();
-
-  }, [])
-
-  useEffect(() => {
     if (isOpen) {
       const original = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
       return () => { document.body.style.overflow = original; };
     }
   }, [isOpen]);
+
+  const showAdminMenu = user && isAdmin;
 
   return (
     <>
@@ -70,7 +55,7 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
         </h1>
 
         <div className="flex flex-col gap-3 w-full">
-          {(user && admins.find(a => a.email === session?.user?.email)) ? (
+          {showAdminMenu ? (
             <>
               <Link href="/"><Title active={pathname === '/'} title="Home" /></Link>
               <Link href="/lines"><Title active={pathname === '/lines'} title="Lines" /></Link>
@@ -132,7 +117,7 @@ export const SidePanelClient: FC<Props> = ({ session }) => {
             </div>
 
             <div className="flex flex-col text-lg overflow-y-auto px-6 py-6 space-y-4 pr-8 -mr-8">
-              {(user && admins.find(a => a.email === session?.user?.email)) ? (
+              {showAdminMenu ? (
                 <>
                   <Link href="/" onClick={() => setIsOpen(false)}><Title active={pathname === '/'} title="Home" /></Link>
                   <Link href="/lines" onClick={() => setIsOpen(false)}><Title active={pathname === '/lines'} title="Lines" /></Link>

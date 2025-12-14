@@ -67,6 +67,7 @@ export default async function RootLayout({
       geistSans={geistSans} 
       geistMono={geistMono} 
       session={session}
+      isAdmin={true}
     >
       {children}
     </LayoutClient>
