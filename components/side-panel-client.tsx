@@ -8,8 +8,6 @@ import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "@/lib/actions/auth-actions";
 import Image from "next/image";
-import { Api } from "@/services/api-client";
-import { Admin } from "@prisma/client";
 
 type Props = {
   session: any;
