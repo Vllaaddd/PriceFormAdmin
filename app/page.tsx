@@ -6,7 +6,6 @@ import { Calculation } from "@prisma/client"
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 import { Card, CardContent } from "@/components/ui/card"
 import { StatCard } from "@/components/stat-card"
-import { prisma } from "@/prisma/prisma-client"
 
 export default function HomePage() {
   const [stats, setStats] = useState({

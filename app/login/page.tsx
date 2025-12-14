@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInSocial } from "@/lib/actions/auth-actions";
-import { LockKeyhole, Loader2 } from "lucide-react"; // Додаємо іконки
+import { LockKeyhole, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -12,14 +12,12 @@ export default function LoginPage() {
     useEffect(() => {
         (async () => {
             try {
-                // Перевіряємо сесію
                 const res = await fetch("/api/auth/session");
                 const session = await res.json();
                 
                 if (session?.user) {
                     router.push("/");
                 } else {
-                    // Якщо сесії немає, показуємо форму
                     setIsChecking(false);
                 }
             } catch (error) {
@@ -29,7 +27,6 @@ export default function LoginPage() {
         })();
     }, [router]);
 
-    // Поки перевіряємо, чи юзер залогінений — показуємо спіннер
     if (isChecking) {
         return (
             <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
@@ -42,7 +39,6 @@ export default function LoginPage() {
         <div className="min-h-screen w-full flex items-center justify-center bg-[conic-gradient(at_top_right,_var(--tw-gradient-stops))] from-slate-100 via-indigo-50 to-cyan-50 p-4">
             <div className="w-full max-w-md bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/50 text-center">
                 
-                {/* Іконка зверху */}
                 <div className="mx-auto bg-indigo-50 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
                     <LockKeyhole className="w-8 h-8 text-indigo-600" />
                 </div>
@@ -56,7 +52,6 @@ export default function LoginPage() {
                     Please authenticate to continue.
                 </p>
 
-                {/* Розділювач */}
                 <div className="relative mb-8">
                     <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t border-gray-200" />

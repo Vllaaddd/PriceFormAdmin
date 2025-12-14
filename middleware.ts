@@ -4,25 +4,21 @@ import type { NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Створюємо відповідь
   const response = NextResponse.next();
   
-  // 🔥 ДОДАЄМО ЦЕЙ РЯДОК: записуємо поточний шлях у заголовок
   response.headers.set('x-current-path', pathname);
 
-  // 1. Публічні шляхи (Login, No-access, API, і т.д.)
   if (
     pathname === "/login" ||
-    pathname === "/no-access" || // <-- Переконайтесь, що це тут є
+    pathname === "/no-access" ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/static") ||
     pathname === "/favicon.ico"
   ) {
-    return response; // Повертаємо response з нашим заголовком
+    return response;
   }
 
-  // 2. Перевірка токена
   const sessionToken = request.cookies.get("better-auth.session_token") || 
                        request.cookies.get("__Secure-better-auth.session_token");
 
