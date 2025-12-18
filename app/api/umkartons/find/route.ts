@@ -4,14 +4,16 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
-        const format = Number(searchParams.get("format"));
-        const knife = searchParams.get("knife");
-        const density = Number(searchParams.get("density"));
+        const fsDimension = Number(searchParams.get("fsDimension"));
+        const displayCarton = searchParams.get("displayCarton");
+        const width = Number(searchParams.get("width"));
+        const bedoManu = searchParams.get("bedoManu");
 
         const filters: any = {};
-        if (format) filters.format = format;
-        if (knife) filters.knife = knife;
-        if (density) filters.density = density;  
+        if (fsDimension) filters.fsDimension = Number(fsDimension);
+        if (displayCarton) filters.displayCarton = displayCarton;
+        if (width) filters.width = { gte: Number(width + 3)};
+        if (bedoManu) filters.bedoManu = bedoManu;
 
         const bestUmkarton = await prisma.umkarton.findFirst({
             where: filters,

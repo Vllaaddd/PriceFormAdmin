@@ -70,7 +70,7 @@ export default function CalculationsEditPage(){
         let WVPerRoll = 0
         let materialName = undefined
 
-        const { material, materialWidth, materialThickness, materialLength, roll, rollLength, sheetLength, sheetWidth, sheetQuantity, typeOfProduct, skilletFormat, skilletKnife, skilletDensity, totalOrderInRolls, period  } = form
+        let { material, materialWidth, materialThickness, materialLength, roll, rollLength, sheetLength, sheetWidth, sheetQuantity, typeOfProduct, skilletFormat, skilletKnife, skilletDensity, totalOrderInRolls, period  } = form
         if(material === 'Baking paper'){
             materialName = 'BP'
         }else{
@@ -82,19 +82,23 @@ export default function CalculationsEditPage(){
             material: material === 'Baking paper' ? 'BP' : material || '',
         })
 
-        if (materialWidth && materialThickness && materialLength && density && materialName !== 'BP') {
-            const materialWeight = materialWidth * materialThickness * materialLength * Number(density) / 1000000
+        let materialWeight = 0
+
+        if (materialWidth && materialThickness && materialLength && density && material !== 'BP') {
+            materialWeight = materialWidth * materialThickness * materialLength * Number(density) / 1000000
             materialCost = materialWeight * Number(costPerKg)
         }else{
-            if(typeOfProduct !== 'Consumer sheets' && materialWidth && rollLength && form.density){
-                const square = (materialWidth / 1000) * Number(rollLength)
-                const materialWeight = square * form.density
-                materialCost = (materialWeight / 1000) * Number(costPerKg)
-            }else if (typeOfProduct === 'Consumer sheets' && sheetLength && sheetWidth && sheetQuantity && form.density) {
-                const square = Number(sheetWidth) * Number(sheetLength) * sheetQuantity
-                const materialWeight = square * form.density
-                materialCost = (materialWeight / 1000) * Number(costPerKg)
-            }
+        if(typeOfProduct !== 'Consumer sheets' && materialWidth && rollLength && form.density){
+            const square = (materialWidth / 1000) * Number(rollLength)
+            materialWeight = (square * form.density) / 1000
+            materialCost = materialWeight * Number(costPerKg)
+            materialLength = Number(rollLength)
+        }else if (typeOfProduct === 'Consumer sheets' && sheetLength && sheetWidth && sheetQuantity && form.density) {
+            const square = (Number(sheetWidth) / 1000) * (Number(sheetLength) / 1000) * sheetQuantity
+            materialWeight = (square * form.density) / 1000
+            materialCost = materialWeight * Number(costPerKg)
+            materialLength = Number(sheetLength) * Number(sheetQuantity) / 1000
+        }
         }
 
         if(roll === 'Consumer' && materialWidth && materialWidth <= 350){
@@ -166,18 +170,42 @@ export default function CalculationsEditPage(){
             corePrice = 0
         }
 
-        const totalPricePerRoll = Number(materialCost) + Number(WVPerRoll) + Number(skilletPrice) + Number(corePrice)
+        const umkarton = await Api.umkartons.find({
+            fsDimension: skillet.height,
+            displayCarton: form.boxType === 'Display' ? 'ja' : 'Nein',
+            width: core.length,
+            bedoManu: roll === 'Consumer' ? 'Ja' : 'Nein'
+        })
+
+        const umkartonName = umkarton.article;
+        let umkartonPrice = 0;
+
+        if(umkarton.deckel !== 'nein'){
+            const deckelPrice = await Api.deckels.find({ article: umkarton.deckel })
+            umkartonPrice = deckelPrice.price;
+        }
+
+        if (umkarton && totalOrderInRolls) {
+            const tierPrice = umkarton?.tierPrices?.find((tp) => totalOrderInRolls > tp.tier.minQty && totalOrderInRolls <= tp.tier.maxQty);
+            umkartonPrice = umkartonPrice + (tierPrice ? tierPrice.price : 0);
+        }
+
+        const totalPricePerRoll = Number(materialCost) + Number(WVPerRoll) + Number(skilletPrice) + Number(corePrice) + Number(umkartonPrice);
         let totalPrice = totalPricePerRoll * (totalOrderInRolls || 0);
+        let margin = 0;
 
         if(totalOrderInRolls && totalOrderInRolls <= 30000){
             totalPrice = totalPrice + (totalPrice / 100 * 7)
+            margin = 7
         }else if(totalOrderInRolls && (totalOrderInRolls > 30000 && totalOrderInRolls <= 200000)){
             totalPrice = totalPrice + (totalPrice / 100 * 5)
+            margin = 5
         }else if(totalOrderInRolls && totalOrderInRolls > 200000){
             totalPrice = totalPrice + (totalPrice / 100 * 3)
+            margin = 3
         }
 
-        return { materialCost, WVPerRoll, skilletPrice, skillet: skilletName, corePrice, core: coreName, totalPricePerRoll, totalPrice }
+        return { materialCost, WVPerRoll, skilletPrice, skillet: skilletName, corePrice, core: coreName, umkarton: umkartonName, umkartonPrice, totalPricePerRoll, totalPrice, margin, materialWeight, foliePricePerKg: Number(costPerKg), materialLength }
     }
 
     const handleSubmit = async (e: FormEvent) => {

@@ -5,15 +5,12 @@ export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
         const article = searchParams.get("article");
-        const price = Number(searchParams.get("length")) + 8;
 
         const filters: any = {};
         if (article) filters.article = article;
-        if (price) filters.price = { gte: price };
 
         const bestDeckel = await prisma.deckel.findFirst({
             where: filters,
-            orderBy: { price: "asc" },
         });
 
         if (!bestDeckel) {

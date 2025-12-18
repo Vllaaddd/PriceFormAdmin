@@ -43,11 +43,9 @@ export const deleteDeckel = async(id: string): Promise<Deckel> => {
 }
 
 export const find = async (filters: {
-    price: number;
     article: string;
 }): Promise<Deckel> => {
     const params = new URLSearchParams();
-    params.append("price", String(filters.price));
     params.append("type", String(filters.article));
 
     const { data } = await axiosInstance.get<Deckel>(`${ApiRoutes.DECKELS}/find?${params.toString()}`);

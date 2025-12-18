@@ -74,7 +74,6 @@ export default function CalculationsEditPage() {
                                             <th className="p-3 text-sm font-semibold text-gray-700">Title</th>
                                             <th className="p-3 text-sm font-semibold text-gray-700">Material</th>
                                             <th className="p-3 text-sm font-semibold text-gray-700">Width</th>
-                                            <th className="p-3 text-sm font-semibold text-gray-700">Thickness</th>
                                             <th className="p-3 text-sm font-semibold text-gray-700">Date</th>
                                             <th className="p-3 text-sm font-semibold text-gray-700 text-center">Actions</th>
                                         </tr>
@@ -86,7 +85,6 @@ export default function CalculationsEditPage() {
                                                 <td className="p-3 text-gray-800">{calc.title}</td>
                                                 <td className="p-3">{calc.material}</td>
                                                 <td className="p-3">{calc.materialWidth}</td>
-                                                <td className="p-3">{calc.materialThickness}</td>
                                                 <td className="p-3 text-gray-500">
                                                     {new Date(calc.createdAt).toLocaleDateString()}
                                                 </td>
