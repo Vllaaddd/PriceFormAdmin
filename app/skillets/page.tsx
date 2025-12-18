@@ -314,7 +314,7 @@ export default function SkilletsPage() {
                         Skillets Overview
                     </h1>
 
-                    <div className="flex items-center gap-10">
+                    <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8">
                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                             <DialogTrigger asChild className="cursor-pointer">
                                 <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all duration-200">
