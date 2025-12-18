@@ -82,7 +82,7 @@ export default function CalculationPage(){
                 onClose={() => setIsModalOpen(false)}
                 onSend={async (email) => {
                     try {
-                        await sendEmail(email, calculation, 'recipient', emailText)
+                        await sendEmail(email, calculation, 'creator', emailText)
                         toast.success("Email sent successfully!")
                     } catch (error) {
                         console.error("Error sending email:", error)
