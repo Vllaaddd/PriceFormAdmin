@@ -14,12 +14,16 @@ export default function CalculationPage(){
     const { id } = useParams()
     const [calculation, setCalculation] = useState<Calculation | undefined>(undefined)
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [emailText, setEmailText] = useState("")
 
     useEffect(() => {
         const fetchCalculation = async (id: number) => {
             
             const calculation = await Api.calculations.getOneCalculation(id)
             setCalculation(calculation)
+
+            const text = await Api.emailtext.getText()
+            setEmailText(text.text)
 
         }
 
@@ -78,7 +82,7 @@ export default function CalculationPage(){
                 onClose={() => setIsModalOpen(false)}
                 onSend={async (email) => {
                     try {
-                        await sendEmail(email, calculation, 'recipient', '')
+                        await sendEmail(email, calculation, 'recipient', emailText)
                         toast.success("Email sent successfully!")
                     } catch (error) {
                         console.error("Error sending email:", error)
