@@ -91,7 +91,7 @@ export default function CalculationPage(){
                 }}
             />
 
-            <ToastContainer position="bottom-right" />
+            <ToastContainer position="top-right" />
         </div>
     )
 }
