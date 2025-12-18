@@ -70,7 +70,7 @@ export default function CalculationsEditPage(){
         let WVPerRoll = 0
         let materialName = undefined
 
-        let { material, materialWidth, materialThickness, materialLength, roll, rollLength, sheetLength, sheetWidth, sheetQuantity, typeOfProduct, skilletFormat, skilletKnife, skilletDensity, totalOrderInRolls, period  } = form
+        let { material, materialWidth, materialThickness, materialLength, roll, rollLength, sheetLength, sheetWidth, sheetQuantity, typeOfProduct, skilletKnife, skilletDensity, totalOrderInRolls, period } = form
         if(material === 'Baking paper'){
             materialName = 'BP'
         }else{
@@ -79,7 +79,7 @@ export default function CalculationsEditPage(){
 
         const { density, costPerKg } = await Api.periods.find({
             period: period || "",
-            material: material === 'Baking paper' ? 'BP' : material || '',
+            material: materialName || "",
         })
 
         let materialWeight = 0
@@ -131,29 +131,14 @@ export default function CalculationsEditPage(){
             length = Number(sheetWidth) * sheetQuantity
         }
 
-        if(length <= 52){
-            WVPerRoll = await fetchLine('BP', length, 'BP lines')
+        if(length <= 52000){
+            WVPerRoll = await fetchLine('BP', length/1000, 'BP lines')
         }else{
             WVPerRoll = 0
         }
 
         }else if(roll === 'BP' && rollLength && Number(rollLength) > 52){
             WVPerRoll = 0
-        }
-
-        const skillet = await Api.skillets.find({
-            format: Number(skilletFormat),
-            knife: skilletKnife || '',
-            density: Number(skilletDensity)
-        })
-
-        let skilletName = skillet.article;
-        let skilletPrice = 0;
-
-        if (skillet && totalOrderInRolls) {
-            const tierPrice = skillet?.tierPrices?.find((tp) => totalOrderInRolls > tp.tier.minQty && totalOrderInRolls <= tp.tier.maxQty);
-
-            skilletPrice = tierPrice ? tierPrice.price : 0;
         }
 
         const core = await Api.cores.find({ length: materialWidth || 0, type: roll || '' })
@@ -170,6 +155,29 @@ export default function CalculationsEditPage(){
             corePrice = 0
         }
 
+        let thickness = 0;
+
+        if(materialThickness && materialLength){
+            const coreOutsideDiameter = core.width + core.thickness * 2
+            thickness = Math.sqrt(((materialLength * 4 * materialThickness) / Math.PI) + (coreOutsideDiameter ** 2)) * 1.02;
+        }
+
+        const skillet = await Api.skillets.find({
+            width: materialWidth || 0,
+            height: thickness,
+            knife: skilletKnife || '',
+            density: Number(skilletDensity)
+        })
+
+        const skilletName = skillet.article;
+            let skilletPrice = 0;
+
+        if (skillet && totalOrderInRolls) {
+            const tierPrice = skillet?.tierPrices?.find((tp) => totalOrderInRolls > tp.tier.minQty && totalOrderInRolls <= tp.tier.maxQty);
+
+            skilletPrice = tierPrice ? tierPrice.price : 0;
+        }
+
         const umkarton = await Api.umkartons.find({
             fsDimension: skillet.height,
             displayCarton: form.boxType === 'Display' ? 'ja' : 'Nein',
@@ -178,7 +186,7 @@ export default function CalculationsEditPage(){
         })
 
         const umkartonName = umkarton.article;
-        let umkartonPrice = 0;
+            let umkartonPrice = 0;
 
         if(umkarton.deckel !== 'nein'){
             const deckelPrice = await Api.deckels.find({ article: umkarton.deckel })
@@ -413,28 +421,6 @@ export default function CalculationsEditPage(){
                                 {o}
                             </option>
                         ))}
-                    </SelectField>
-
-                    {/* Skillet format */}
-                    <SelectField label="Skillet format" value={form?.skilletFormat || ""} onChange={(e) => handleChange("skilletFormat", String(e.target.value))}>
-                        <option value="">-- choose skillet form?at --</option>
-                        {(() => {
-                            let formats: string[] = skillet.format;
-
-                            if (selectedRoll?.name === "BP") {
-                                formats = skillet.format.slice(4, 8);
-                            } else if (selectedRoll?.name === "Catering") {
-                                formats = skillet.format.slice(7, 9);
-                            } else {
-                                formats = skillet.format.slice(0, 4);
-                            }
-
-                            return formats.map((f, i) => (
-                                <option key={i} value={f}>
-                                    {f}
-                                </option>
-                            ));
-                        })()}
                     </SelectField>
 
                     {/* Skillet knife */}
