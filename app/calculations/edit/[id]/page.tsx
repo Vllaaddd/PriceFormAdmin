@@ -70,7 +70,7 @@ export default function CalculationsEditPage(){
         let WVPerRoll = 0
         let materialName = undefined
 
-        let { material, materialWidth, materialThickness, materialLength, roll, rollLength, sheetLength, sheetWidth, sheetQuantity, typeOfProduct, skilletKnife, skilletDensity, totalOrderInRolls, period } = form
+        let { material, materialWidth, materialThickness, materialLength, roll, rollsPerCarton, rollLength, sheetLength, sheetWidth, sheetQuantity, typeOfProduct, skilletKnife, skilletDensity, totalOrderInRolls, period } = form
         if(material === 'Baking paper'){
             materialName = 'BP'
         }else{
@@ -195,7 +195,7 @@ export default function CalculationsEditPage(){
 
         if (umkarton && totalOrderInRolls) {
             const tierPrice = umkarton?.tierPrices?.find((tp) => totalOrderInRolls > tp.tier.minQty && totalOrderInRolls <= tp.tier.maxQty);
-            umkartonPrice = umkartonPrice + (tierPrice ? tierPrice.price : 0);
+            umkartonPrice = umkartonPrice + ((tierPrice ? tierPrice.price : 0)/Number(rollsPerCarton));
         }
 
         const totalPricePerRoll = Number(materialCost) + Number(WVPerRoll) + Number(skilletPrice) + Number(corePrice) + Number(umkartonPrice);
