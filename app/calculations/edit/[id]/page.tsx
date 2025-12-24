@@ -199,8 +199,9 @@ export default function CalculationsEditPage(){
         const umkarton = await Api.umkartons.find({
             fsDimension: skillet.height,
             displayCarton: form.boxType === 'Display' ? 'ja' : 'nein',
+            bedoManu: roll === 'Consumer' ? 'ja' : 'nein',
+            color: form.boxColor || '',
             width: skillet.width,
-            bedoManu: roll === 'Consumer' ? 'ja' : 'nein'
         })
 
         const umkartonName = umkarton.article;
