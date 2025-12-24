@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
         const density = Number(searchParams.get("density"));
 
         const whereClause: any = {
-            width: { gte: width + 10 },
+            width: { gte: width },
             height: { gte: height },
         };
 

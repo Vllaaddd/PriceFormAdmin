@@ -160,8 +160,8 @@ export default function CalculationsEditPage(){
         if(materialThickness && materialLength && roll !== 'BP'){
             const coreOutsideDiameter = core.width + core.thickness * 2
             height = Math.sqrt(((materialLength * 4 * materialThickness) / Math.PI) + (coreOutsideDiameter ** 2)) * 1.02;
-        }else if(rollLength && sheetQuantity && roll === 'BP'){
-            if(typeOfProduct === 'Consumer sheets'){
+        }else if(roll === 'BP'){
+            if(typeOfProduct === 'Consumer sheets' && sheetQuantity){
                 if(sheetQuantity <= 15){
                     height = 39
                 }else if(sheetQuantity > 15 && sheetQuantity <= 20){
@@ -181,7 +181,7 @@ export default function CalculationsEditPage(){
         }
 
         const skillet = await Api.skillets.find({
-            width: roll !== 'BP' ? core.width : materialWidth || 0,
+            width: roll !== 'BP' ? core.length : materialWidth || 0,
             height,
             knife: skilletKnife === 'With knife' ? 'ja' : 'nein',
             density: Number(skilletDensity)
