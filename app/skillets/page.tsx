@@ -269,7 +269,7 @@ export default function SkilletsPage() {
                         height: row.height,
                         depth: row.depth,
                         width: row.width,
-                        knife: row.knife === 'nein' ? 'No knife' : row.knife === 'gebogen' ? 'V-type plastic' : row.knife === 'gerade' ? 'Straight plastic knife' : row.knife,
+                        knife: row.knife,
                         density: row.density,
                         price: row.basePrice,
                         prices: row.prices

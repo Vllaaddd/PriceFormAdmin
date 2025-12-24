@@ -47,12 +47,12 @@ export const SidePanelClient: FC<Props> = ({ session, isAdmin }) => {
         </button>
       </div>
 
-      <div className="hidden lg:flex w-72 bg-[#121212] text-white min-h-screen p-6 shadow-lg flex-col items-center border-r border-gray-800">
+      <div className="hidden lg:flex w-72 bg-[#121212] text-white h-full p-6 shadow-lg flex-col items-center border-r border-gray-800">
         <h1 className="pb-8 text-2xl font-semibold text-center tracking-wide text-gray-100">
           Admin Dashboard
         </h1>
 
-        <div className="flex flex-col gap-3 w-full">
+        <div className="flex flex-col gap-3 w-full overflow-y-auto flex-1 min-h-0 custom-scrollbar pr-2">
           {showAdminMenu ? (
             <>
               <Link href="/"><Title active={pathname === '/'} title="Home" /></Link>
