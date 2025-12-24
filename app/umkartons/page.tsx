@@ -280,11 +280,11 @@ export default function UmkartonsPage() {
                         price: row.basePrice,
                         prices: row.prices,
                         fsDimension: row.fsDimension,
-                        displayCarton: row.displayCarton,
+                        displayCarton: row.displayCarton?.toLocaleLowerCase(),
                         color: row.color,
                         deckel: row.deckel,
                         fsQty: row.fsQty,
-                        bedoManu: row.bedoManu,
+                        bedoManu: row.bedoManu?.toLocaleLowerCase(),
                     });
 
                     if ((result as any).skipped) {
