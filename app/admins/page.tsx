@@ -107,7 +107,7 @@ export default function AdminsPage() {
                                     <CreateInput
                                         title="Email"
                                         placeholder="Email"
-                                        value={adminName}
+                                        value={adminEmail}
                                         onChange={(e) =>
                                             setAdminEmail(e.target.value)
                                         }
