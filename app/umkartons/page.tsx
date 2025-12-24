@@ -24,7 +24,7 @@ interface ParsedRow {
     article: string;
     fsDimension?: number;
     displayCarton?: string;
-    color?: string;
+    color?: number;
     deckel?: string;
     fsQty?: number;
     bedoManu?: string;
@@ -240,7 +240,7 @@ export default function UmkartonsPage() {
                     basePrice: parseFloat(row['Actual EPF price']) || undefined,
                     fsDimension: parseFloat(row['FS dimension']) || undefined,
                     displayCarton: row['Display carton']?.toString()?.trim() || undefined,
-                    color: row['Color']?.toString()?.trim() || undefined,
+                    color: !isNaN(parseFloat(row['Color'])) ? parseFloat(row['Color']) : undefined,
                     deckel: row['Tray&deckel']?.toString()?.trim() || undefined,
                     fsQty: parseInt(row['Qty of FS/box']) || undefined,
                     bedoManu: row['Bedo/Manual']?.toString()?.trim() || undefined,
@@ -297,7 +297,6 @@ export default function UmkartonsPage() {
                     }
 
                 } catch (err) {
-                    console.log(row)
                     console.error(`Error uploading ${row.article}`, err);
                     toast.error(`Failed to upload umkarton ${row.article}`);
                 }

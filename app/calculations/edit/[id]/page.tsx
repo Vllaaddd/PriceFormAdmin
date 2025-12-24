@@ -213,8 +213,7 @@ export default function CalculationsEditPage(){
         }
 
         if (umkarton && totalOrderInRolls) {
-            const tierPrice = umkarton?.tierPrices?.find((tp) => totalOrderInRolls > tp.tier.minQty && totalOrderInRolls <= tp.tier.maxQty);
-            umkartonPrice = umkartonPrice + ((tierPrice ? tierPrice.price : 0)/Number(rollsPerCarton));
+            umkartonPrice = umkartonPrice + (umkarton.basePrice/Number(rollsPerCarton));
         }
 
         const totalPricePerRoll = Number(materialCost) + Number(WVPerRoll) + Number(skilletPrice) + Number(corePrice) + Number(umkartonPrice);

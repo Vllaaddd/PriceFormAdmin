@@ -30,7 +30,7 @@ export async function POST(req: NextRequest){
                 article,
                 fsDimension: Number(fsDimension) || 0,
                 displayCarton: displayCarton || "",
-                color: color || "",
+                color: color,
                 deckel: deckel || "",
                 fsQty: Number(fsQty) || 0,
                 bedoManu: bedoManu || "",
