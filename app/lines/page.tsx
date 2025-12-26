@@ -10,65 +10,50 @@ import { LoadingCard } from "@/components/loading-card";
 export default function LinesPage(){
 
     const [lines, setLines] = useState<Line[]>([]);
-    const [mainLines, setMainLines] = useState<Line[]>([]);
     const [bpLines, setBpLines] = useState<Line[]>([]);
-    const [speedLine1, setSpeedLine1] = useState<Line[]>([]);
-    const [speedLine2, setSpeedLine2] = useState<Line[]>([]);
+    const [consumerLines, setConsumerLines] = useState<Line[]>([]);
+    const [cateringLines, setCateringLines] = useState<Line[]>([]);
 
     useEffect(() => {
         async function fetchData() {
             const allLines = await Api.lines.getAll();
             setLines(allLines);
-
-            const filteredMainLines = allLines
-                .filter((line) => line.lineType === "Main lines")
-                .sort((a, b) => {
-                    if (a.materialType === b.materialType) {
-                        return a.length - b.length;
-                    }
-                    if (a.materialType === "Alu") return -1;
-                    if (b.materialType === "Alu") return 1;
-                    if (a.materialType === "Frischhaltefolie") return -1;
-                    if (b.materialType === "Frischhaltefolie") return 1;
-                    return 0;
-                });
-            setMainLines(filteredMainLines)
             
             const filteredBPLines = allLines
-            .filter((line) => line.lineType === "BP lines")
-            .sort((a, b) => a.length - b.length);
+            .filter((line) => line.lineType === "BP")
+            .sort((a, b) => a.maxLength - b.maxLength);
             
             setBpLines(filteredBPLines);
             
-            const filteredSpeedLine1 = allLines
-            .filter((line) => line.lineType === "Speed 4,5 and 4,6")
+            const filteredConsumerLines = allLines
+            .filter((line) => line.lineType === "Consumer roll")
             .sort((a, b) => {
-                if (a.materialType === b.materialType) {
-                    return a.length - b.length;
+                if (a.material === b.material) {
+                    return a.maxLength - b.maxLength;
                 }
-                if (a.materialType === "Alu") return -1;
-                if (b.materialType === "Alu") return 1;
-                if (a.materialType === "Frischhaltefolie") return -1;
-                if (b.materialType === "Frischhaltefolie") return 1;
-                return 0;
-            });
-            
-            setSpeedLine1(filteredSpeedLine1);
-            
-            const filteredSpeedLine2 = allLines
-            .filter((line) => line.lineType === "Speed 6,4")
-            .sort((a, b) => {
-                if (a.materialType === b.materialType) {
-                    return a.length - b.length;
-                }
-                if (a.materialType === "Alu") return -1;
-                if (b.materialType === "Alu") return 1;
-                if (a.materialType === "Frischhaltefolie") return -1;
-                if (b.materialType === "Frischhaltefolie") return 1;
+                if (a.material === "Alu") return -1;
+                if (b.material === "Alu") return 1;
+                if (a.material === "Frischhaltefolie") return -1;
+                if (b.material === "Frischhaltefolie") return 1;
                 return 0;
             });
 
-            setSpeedLine2(filteredSpeedLine2);     
+            setConsumerLines(filteredConsumerLines);
+            
+            const filteredCateringLines = allLines
+            .filter((line) => line.lineType === "Catering roll")
+            .sort((a, b) => {
+                if (a.material === b.material) {
+                    return a.maxLength - b.maxLength;
+                }
+                if (a.material === "Alu") return -1;
+                if (b.material === "Alu") return 1;
+                if (a.material === "Frischhaltefolie") return -1;
+                if (b.material === "Frischhaltefolie") return 1;
+                return 0;
+            });
+
+            setCateringLines(filteredCateringLines);     
         }
 
         fetchData();
@@ -96,10 +81,10 @@ export default function LinesPage(){
 
             <Card className="bg-white shadow-md hover:shadow-lg transition-all duration-300">
                 <CardHeader>
-                    <CardTitle>Main Lines</CardTitle>
+                    <CardTitle>Consumer Lines</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-3xl font-bold text-green-600">{mainLines.length}</p>
+                    <p className="text-3xl font-bold text-green-600">{consumerLines.length}</p>
                 </CardContent>
             </Card>
 
@@ -114,21 +99,21 @@ export default function LinesPage(){
 
             <Card className="bg-white shadow-md hover:shadow-lg transition-all duration-300">
                 <CardHeader>
-                    <CardTitle>Speed Lines</CardTitle>
+                    <CardTitle>Catering Lines</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-3xl font-bold text-orange-600">
-                        {speedLine1.length + speedLine2.length}
+                        {cateringLines.length}
                     </p>
                 </CardContent>
             </Card>
         </div>
 
         <div className="space-y-16">
-            {mainLines?.length > 0 ? (
-                <LinesTable lines={mainLines} title="AV Speed Main Lines" />
+            {consumerLines?.length > 0 ? (
+                <LinesTable lines={consumerLines} title="Consumer Lines" />
             ) : (
-                <LoadingCard text="Loading main lines..." />
+                <LoadingCard text="Loading consumer lines..." />
             )}
 
             {bpLines?.length > 0 ? (
@@ -137,16 +122,10 @@ export default function LinesPage(){
                 <LoadingCard text="Loading BP lines..." />
             )}
 
-            {speedLine1?.length > 0 ? (
-                <LinesTable lines={speedLine1} title="AV Speed Line 4.5 and 4.6" />
+            {cateringLines?.length > 0 ? (
+                <LinesTable lines={cateringLines} title="Catering Lines" />
             ) : (
-                <LoadingCard text="Loading Speed 4.5 and 4.6..." />
-            )}
-
-            {speedLine2?.length > 0 ? (
-                <LinesTable lines={speedLine2} title="AV Speed Line 6.4" />
-            ) : (
-                <LoadingCard text="Loading Speed 6.4..." />
+                <LoadingCard text="Loading catering lines..." />
             )}
         </div>
       </div>
