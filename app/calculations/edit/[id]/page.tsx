@@ -274,12 +274,12 @@ export default function CalculationsEditPage(){
                             {/* Товщина */}
                             <SelectField
                                 label="Thickness (my)"
-                                value={form?.materialThickness || ""}
+                                value={form.materialThickness || ""}
                                 onChange={(e) => handleChange("materialThickness", Number(e.target.value))}
                                 disabled={!selectedMaterial}
                             >
                                 <option value="">-- choose thickness --</option>
-                                {selectedMaterial?.thickness?.map((t, i) => (
+                                {(selectedMaterial as any)?.thickness?.map((t: any, i: any) => (
                                     <option key={i} value={t}>
                                         {t}
                                     </option>
@@ -301,7 +301,7 @@ export default function CalculationsEditPage(){
                                 disabled={!selectedMaterial}
                             >
                                 <option value="">-- choose density --</option>
-                                {selectedMaterial?.density?.map((d, i) => (
+                                {(selectedMaterial as any)?.density?.map((d: any, i: any) => (
                                     <option key={i} value={d}>
                                         {d}
                                     </option>
@@ -316,7 +316,7 @@ export default function CalculationsEditPage(){
                                 disabled={!selectedMaterial}
                             >
                                 <option value="">-- choose type of product --</option>
-                                {selectedMaterial?.typeOfProduct?.map((t, i) => (
+                                {(selectedMaterial as any)?.typeOfProduct?.map((t: any, i: any) => (
                                     <option key={i} value={t}>
                                         {t}
                                     </option>
@@ -400,13 +400,7 @@ export default function CalculationsEditPage(){
                         onChange={(e) => handleChange("skilletKnife", e.target.value)}
                     >
                         <option value="">-- choose skillet knife --</option>
-                        {(
-                        selectedRoll?.name === "BP"
-                            ? [skillet.knife[0], ...skillet.knife.slice(-3)]
-                            : selectedRoll?.name === "Catering"
-                            ? [skillet.knife[0], ...skillet.knife.slice(-2)]
-                            : skillet.knife.slice(0, 5)
-                        ).map((k, i) => (
+                        {skillet.knife.map((k, i) => (
                             <option key={i} value={k}>
                                 {k}
                             </option>
