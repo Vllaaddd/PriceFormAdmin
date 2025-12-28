@@ -26,7 +26,7 @@ export default function LinesPage(){
             setBpLines(filteredBPLines);
             
             const filteredConsumerLines = allLines
-            .filter((line) => line.lineType === "Consumer roll")
+            .filter((line) => line.lineType === "Consumer")
             .sort((a, b) => {
                 if (a.material === b.material) {
                     return a.maxLength - b.maxLength;
@@ -41,7 +41,7 @@ export default function LinesPage(){
             setConsumerLines(filteredConsumerLines);
             
             const filteredCateringLines = allLines
-            .filter((line) => line.lineType === "Catering roll")
+            .filter((line) => line.lineType === "Catering")
             .sort((a, b) => {
                 if (a.material === b.material) {
                     return a.maxLength - b.maxLength;
