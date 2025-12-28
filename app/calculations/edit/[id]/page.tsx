@@ -140,7 +140,7 @@ export default function CalculationsEditPage(){
         })
 
         const skilletName = skillet.article;
-            let skilletPrice = 0;
+        let skilletPrice = 0;
 
         if (skillet && totalOrderInRolls) {
             const tierPrice = skillet?.tierPrices?.find((tp) => totalOrderInRolls > tp.tier.minQty && totalOrderInRolls <= tp.tier.maxQty);
