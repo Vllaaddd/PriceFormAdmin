@@ -110,7 +110,6 @@ export type CalculationForm = {
     materialLength?: number | null
     materialColor?: string | null
     otherProperties?: string | null
-    skilletFormat?: string | null
     skilletKnife?: string | null
     skilletDensity?: number | null
     boxType?: string | null
