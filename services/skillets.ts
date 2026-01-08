@@ -67,6 +67,13 @@ export const deleteSkillet = async(id: string): Promise<Skillet> => {
 
 }
 
+export const deleteAllSkillets = async(): Promise<void> => {
+
+    const { data } = await axiosInstance.delete(`${ApiRoutes.SKILLETS}`)
+
+    return data
+}
+
 export const deletePriceTier = async(id: string): Promise<PriceTier> => {
 
     const { data } = await axiosInstance.delete(`${ApiRoutes.PRICETIERS}/${id}`)

@@ -1,3 +1,4 @@
+import { skillet } from '@/constants/constatns';
 import { prisma } from "@/prisma/prisma-client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -73,9 +74,9 @@ export async function POST(req: NextRequest){
 
 }
 
-export async function DELETE(req: NextRequest){
+export async function DELETE(){
 
-    const calculation = await prisma.calculation.deleteMany()
+    const skillet = await prisma.skillet.deleteMany()
 
-    return NextResponse.json(calculation)
+    return NextResponse.json(skillet)
 }

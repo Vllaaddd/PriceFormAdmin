@@ -1,131 +1,72 @@
 import { UmkartonWithPrices } from "@/prisma/types";
-import { Api } from "@/services/api-client";
-import { PriceTier } from "@prisma/client";
-import { FC, useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import { Label } from "./label";
+import { FC } from "react";
 import { Trash2 } from "lucide-react";
 
 interface Props{
     umkartons: UmkartonWithPrices[];
-    tiers: PriceTier[];
     onDeleteUmkarton?: (id: string) => Promise<void>;
-    onDeleteTier?: (id: string) => Promise<void>;
 }
 
-export const UmkartonsTable: FC<Props> = ({ umkartons, tiers, onDeleteUmkarton, onDeleteTier }) => {
-
-    const [draft, setDraft] = useState<Record<string, string>>({});
-
-    const findPrice = (umkarton: UmkartonWithPrices, tierId: number) =>
-        umkarton?.tierPrices?.find((tp: any) => tp.tierId === tierId)?.price;
-
-    const handleChange = async (umkartonId: number, tierId: number, value: string) => {
-        setDraft((prev) => ({ ...prev, [`${umkartonId}:${tierId}`]: value }));
-
-        const price = Number(value);
-        if (Number.isNaN(price)) {
-            toast.error("Price must be a number");
-            return;
-        }
-
-        try {
-            await Api.umkartons.setTierPrice({umkartonId, tierId, price});
-        } catch (e) {
-            console.error(e);
-            toast.error("Failed to save");
-        }
-    };
+export const UmkartonsTable: FC<Props> = ({ umkartons, onDeleteUmkarton }) => {
 
     return(
-        <div className="mb-16">
-            <div className="overflow-x-auto shadow-md rounded-2xl border border-gray-200 bg-white">
-                <table className="min-w-full text-sm text-left text-gray-700">
-                    <thead className="bg-gray-50 text-gray-900 text-sm uppercase font-medium">
-                        <tr>
-                            <th className="px-5 py-3">Article</th>
-                            <th className="px-5 py-3">FS dimension</th>
-                            <th className="px-5 py-3">FS quantity</th>
-                            <th className="px-5 py-3">Height</th>
-                            <th className="px-5 py-3">Depth</th>
-                            <th className="px-5 py-3">Width</th>
-                            <th className="px-5 py-3">Price</th>
-                            {tiers?.map((tier) => (
-                                <th key={tier.id} className="px-5 py-3">
-                                    <div className="flex items-center gap-2">
-                                        <Label tier={tier} />
-                                        <button
-                                            type="button"
-                                            title="Delete price tier"
-                                            aria-label="Delete price tier"
-                                            onClick={() => onDeleteTier?.(String(tier.id))}
-                                            className="ml-1 inline-flex items-center rounded-lg p-1.5 text-red-600 hover:text-red-700 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-200 transition cursor-pointer"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </button>
-                                    </div>
-                                </th>
-                            ))}
-                            <th className="px-8 py-3">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {umkartons?.map((umkarton, index) => {
+        <div className="pb-16">
+            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/40">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full text-left text-sm whitespace-nowrap">
+                        
+                        <thead className="bg-gray-50/50 border-b border-gray-100">
+                            <tr>
+                                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-gray-500 sticky left-0 bg-gray-50 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">Article</th>
+                                
+                                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-gray-500">FS Dim</th>
+                                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-gray-500">FS Qty</th>
+                                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-gray-500">Height</th>
+                                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-gray-500">Depth</th>
+                                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-gray-500">Width</th>
+                                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-gray-500 bg-blue-50/30">Price</th>
+                                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-gray-500 text-center">Actions</th>
+                            </tr>
+                        </thead>
 
-                            return (
-                                <tr
-                                    key={umkarton.id}
-                                    className={`transition-colors ${
-                                        index % 2 === 0 ? "bg-white" : "bg-gray-100"
-                                    } hover:bg-blue-50`}
-                                >
-                                    <td className="px-5 py-3 font-medium">{umkarton.article}</td>
-                                    <td className="px-5 py-3">{umkarton.fsDimension}</td>
-                                    <td className="px-5 py-3">{umkarton.fsQty}</td>
-                                    <td className="px-5 py-3">{umkarton.height}</td>
-                                    <td className="px-5 py-3">{umkarton.depth}</td>
-                                    <td className="px-5 py-3">{umkarton.width}</td>
-                                    <td className="px-5 py-3">{umkarton.basePrice}</td>
-                                    {tiers.map((tierPrice) => {
-                                        const key = `${umkarton.id}:${tierPrice.id}`;
-                                        const value =
-                                            draft[key] !== undefined
-                                            ? draft[key]
-                                            : String(findPrice(umkarton, tierPrice.id) ?? "");
+                        <tbody className="divide-y divide-gray-100">
+                            {umkartons?.map((umkarton) => {
+                                return (
+                                    <tr
+                                        key={umkarton.id}
+                                        className="group hover:bg-blue-50/30 transition-colors duration-200"
+                                    >
+                                        <td className="px-6 py-4 font-bold text-gray-900 sticky left-0 bg-white group-hover:bg-blue-50/30 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] transition-colors">
+                                            {umkarton.article}
+                                        </td>
+                                        
+                                        <td className="px-6 py-4 text-gray-600">{umkarton.fsDimension || '-'}</td>
+                                        <td className="px-6 py-4 text-gray-600">{umkarton.fsQty || '-'}</td>
+                                        <td className="px-6 py-4 text-gray-600 font-mono">{umkarton.height}</td>
+                                        <td className="px-6 py-4 text-gray-600 font-mono">{umkarton.depth}</td>
+                                        <td className="px-6 py-4 text-gray-600 font-mono">{umkarton.width}</td>
+                                        
+                                        <td className="px-6 py-4 font-mono font-medium text-blue-700 bg-blue-50/10">
+                                            {umkarton.basePrice?.toFixed(2)} €
+                                        </td>
 
-                                        return (
-                                            <td key={tierPrice.id} className="px-5 py-3">
-                                            <input
-                                                type="text"
-                                                value={value}
-                                                onChange={(e) => handleChange(umkarton.id, tierPrice.id, e.target.value)}
-                                                className="w-24 p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                                                placeholder="—"
-                                            />
-                                            </td>
-                                        );
-                                    })}
-                                    <td className="px-5 py-3">
-                                        <div className="flex">
+                                        <td className="px-6 py-4 text-center">
                                             <button
                                                 type="button"
-                                                title="Delete umkarton"
-                                                aria-label="Delete umkarton"
                                                 onClick={() => onDeleteUmkarton?.(String(umkarton.id))}
-                                                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-red-600 hover:text-red-700 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-200 transition cursor-pointer"
+                                                className="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer"
+                                                title="Delete umkarton"
                                             >
-                                                <Trash2 className="h-4 w-4" />
-                                                <span className="hidden sm:inline">Delete</span>
+                                                <Trash2 className="w-4 h-4" />
                                             </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <ToastContainer />
         </div>
     )
 }

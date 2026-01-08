@@ -5,6 +5,7 @@ import { EmailModal } from "@/components/email-modal";
 import { Api } from "@/services/api-client"
 import { sendEmail } from "@/services/emails";
 import { Calculation } from "@prisma/client";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react"
 import { toast, ToastContainer } from "react-toastify";
@@ -33,6 +34,19 @@ export default function CalculationPage(){
     return (
         <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6">
             <div className="max-w-4xl mx-auto">
+
+                <div className="mb-6">
+                    <Link
+                        href="/calculations" 
+                        className="inline-flex items-center text-gray-500 hover:text-blue-600 transition-colors font-medium"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Back to calculations
+                    </Link>
+                </div>
+
                 {calculation ? (
                     <div className="bg-white shadow-xl rounded-none sm:rounded-sm overflow-hidden border border-gray-200">
                         

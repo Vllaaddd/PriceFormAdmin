@@ -35,3 +35,10 @@ export async function POST(req: NextRequest){
     }
 
 }
+
+export async function DELETE(){
+
+    const deckel = await prisma.deckel.deleteMany()
+
+    return NextResponse.json(deckel)
+}

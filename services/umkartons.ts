@@ -67,6 +67,13 @@ export const deleteUmkarton = async(id: string): Promise<Umkarton> => {
 
 }
 
+export const deleteAllUmkartons = async(): Promise<void> => {
+
+    const { data } = await axiosInstance.delete(`${ApiRoutes.UMKARTONS}`)
+
+    return data
+}
+
 export const deletePriceTier = async(id: string): Promise<PriceTier> => {
 
     const { data } = await axiosInstance.delete(`${ApiRoutes.UMKARTONSPRICETIERS}/${id}`)

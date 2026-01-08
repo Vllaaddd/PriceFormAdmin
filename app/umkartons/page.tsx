@@ -1,18 +1,17 @@
 'use client'
 
 import { CreateInput } from "@/components/create-input";
-import { Label } from "@/components/label";
-import { LoadingCard } from "@/components/loading-card";
 import { UmkartonsTable } from "@/components/umkartons-table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Api } from "@/services/api-client";
-import { PriceTier, Umkarton } from "@prisma/client";
-import { PlusCircle, Upload } from "lucide-react";
+import {  Umkarton } from "@prisma/client";
+import { Package, Plus, Search, Trash2, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
 import * as XLSX from 'xlsx';
+import { UmkartonsSkeleton } from "@/components/skeletons/umkartons-skeleton";
 
 interface RangeTier {
     min: number;
@@ -38,183 +37,124 @@ interface ParsedRow {
 export default function UmkartonsPage() {
 
     const [umkartons, setUmkartons] = useState<Umkarton[]>([]);
-    const [priceTiers, setPriceTiers] = useState<PriceTier[]>([])
-    const [rows, setRows] = useState<ParsedRow[]>([]);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [isPriceTierDialogOpen, setIsPriceTierDialogOpen] = useState(false);
-    const [newUmkartonPrices, setNewUmkartonPrices] = useState<Record<string, string>>({})
-    const [loading, setLoading] = useState(false);
     const [created, setCreated] = useState(0);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [uploading, setUploading] = useState(false);
+    const [rows, setRows] = useState<ParsedRow[]>([]);
+
+    const [searchTerm, setSearchTerm] = useState("");
 
     const [form, setForm] = useState({
-        article: '',
-        height: '',
-        depth: '',
-        width: '',
-        price: '',
-        knife: '',
-        density: '',
+        article: '', fsDimension: '', displayCarton: '', color: '', deckel: '', fsQty: '', height: '', width: '', depth: '', bedoManu: '', basePrice: '',
     });
 
-    const [priceTierForm, setPriceTierForm] = useState({
-        minPrice: null,
-        maxPrice: null,
-    });
+    const loadData = async () => {
+            try {
+
+                const umkartons = await Api.umkartons.getAll();
+                setUmkartons(umkartons);
+
+            } catch (error) {
+                console.error(error);
+                toast.error("Failed to load data");
+            } finally {
+                setLoading(false);
+            }
+        }
     
     useEffect(() => {
-        async function fetchData() {
-
-            const umkartons = await Api.umkartons.getAll();
-            const tiers = await Api.umkartons.getAllTiers()
-
-            setUmkartons(umkartons);
-
-            setPriceTiers(tiers.sort((a, b) => {
-                return a.minQty - b.minQty
-            }))
-        }
-
-        fetchData();
+        loadData();
     }, []);
 
+    const filteredUmkartons = umkartons.filter(item => 
+        item.article.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     const handleCreateUmkarton = async () => {
-        if (!form.article || !form.width || !form.height || !form.depth || !form.knife || !form.density || !form.price) {
-            toast.error('Please fill all fields!')
-            return;
+        if (!form.article || !form.width || !form.height || !form.depth || !form.basePrice) {
+            toast.error('Please fill all required fields!'); return;
         }
-
-        const missingCount = priceTiers.filter(
-            (t) => !String(newUmkartonPrices[String(t.id)] ?? "").trim()
-        );
-
-        if (missingCount.length > 0) {
-            toast.error("Please fill all price fields!");
-            return;
-        }
-
-        const invalid = priceTiers
-            .map((t) => ({
-                id: t.id,
-                label: `${t.minQty}-${t.maxQty}`,
-                raw: String(newUmkartonPrices[String(t.id)]).replace(",", "."),
-            }))
-            .filter((x) => Number.isNaN(Number(x.raw)));
-
-        if (invalid.length > 0) {
-            toast.error("Price fields must be valid numbers!");
-            return;
-        }
-
-        const formattedPrices = priceTiers.map((t) => ({
-            min: t.minQty, 
-            max: t.maxQty,
-            price: Number(String(newUmkartonPrices[String(t.id)]).replace(",", ".")),
-        }));
 
         try {
             const newUmkarton = await Api.umkartons.create({
                 article: form.article,
+                fsDimension: Number(form.fsDimension),
+                displayCarton: form.displayCarton.toLocaleLowerCase(),
+                color: Number(form.color),
+                deckel: form.deckel,
+                fsQty: Number(form.fsQty),
                 height: Number(form.height),
                 width: Number(form.width),
                 depth: Number(form.depth),
-                knife: form.knife,
-                density: Number(form.density),
-                price: Number(form.price),
-                prices: formattedPrices
+                bedoManu: form.bedoManu.toLocaleLowerCase(),
+                basePrice: Number(form.basePrice),
             })
-
-            if ((newUmkarton as any).skipped) {
-                toast.warning(`Umkarton "${form.article}" already exists!`);
-            } else {
-                setUmkartons(prev => [newUmkarton, ...prev])
-                toast.success(`New umkarton "${form.article}" created!`)
-                
-                setIsDialogOpen(false);
-                setForm({ article: "", height: "", width: "", depth: "", price: "", knife: "", density: ""});
-                setNewUmkartonPrices({})
-            }
+            setUmkartons(prev => [newUmkarton, ...prev]);
+            toast.success(`New umkarton "${form.article}" created!`);
+            setIsDialogOpen(false);
+            setForm({ article: '', fsDimension: '', displayCarton: '',color: '', deckel: '', fsQty: '', height: '', width: '', depth: '', bedoManu: '', basePrice: '',});
         } catch (error) {
-            console.error(error);
-            toast.error("Failed to create umkarton")
+            toast.error("Failed to create umkarton");
         }
     };
 
-    const handleCreatePriceTier = async () => {
-        if (!priceTierForm.minPrice || !priceTierForm.maxPrice) {
-            toast.error('Please fill all fields!')
-            return;
-        }
-
-        try {
-            const newTier = await Api.umkartons.createPriceTier({ minQty: Number(priceTierForm.minPrice), maxQty: Number(priceTierForm.maxPrice) })
-            setPriceTiers((prev) => [...prev, newTier].sort((a, b) => {
-                return a.minQty - b.minQty
-            }))
-            toast.success(`New price tier created!`)
-            setIsPriceTierDialogOpen(false);
-            setPriceTierForm({ minPrice: null, maxPrice: null});
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to create price tier")
-        }
-    };
-
-    const handleDeleteTier = async (tierId: string) => {
-
+    const handleDeleteUmkarton = async (id: string) => {
         Swal.fire({
-            title: `Do you want to delete price tier?`,
+            title: `Delete this umkarton?`,
+            text: "This action cannot be undone.",
+            icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: "Delete",
-            cancelButtonColor: 'red'
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#374151',
+            confirmButtonText: "Yes, delete it",
         }).then( async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await Api.umkartons.deletePriceTier(tierId)
-                    setPriceTiers((prev) => prev.filter((t) => t.id !== Number(tierId)));
-                    toast.success("Price tier deleted!");
-                } catch (error) {
-                    toast.error("Failed to delete price tier.");
-                }
-            } else if (result.isDenied) {
-                Swal.fire("Changes are not saved", "", "info");
-                return
-            }
-        });
-    };
-    
-    const handleDeleteUmkarton = async (umkartonId: string) => {
-        Swal.fire({
-            title: `Do you want to delete umkarton?`,
-            showCancelButton: true,
-            confirmButtonText: "Delete",
-            cancelButtonColor: 'red'
-        }).then( async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    await Api.umkartons.deleteUmkarton(umkartonId)
-                    setUmkartons((prev) => prev.filter((s) => s.id !== Number(umkartonId)));
-                    toast.success("Umkarton deleted!");
+                    await Api.umkartons.deleteUmkarton(id);
+                    setUmkartons(p => p.filter(s => s.id !== Number(id)));
+                    toast.success("Umkarton deleted"); 
                 } catch (error) {
                     toast.error("Failed to delete umkarton.");
                 }
-            } else if (result.isDenied) {
-                Swal.fire("Changes are not saved", "", "info");
-                return
+            }
+        });
+    };
+
+    const handleDeleteAll = async () => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This will delete ALL umkartons. This cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#374151',
+            confirmButtonText: 'Yes, delete all'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await Api.umkartons.deleteAllUmkartons();
+                    
+                    setUmkartons([]);
+                    toast.success("All umkartons deleted successfully");
+                } catch (error) {
+                    console.error(error);
+                    toast.error("Failed to delete all umkartons");
+                }
             }
         });
     };
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const handleButtonClick = () => {
-        fileInputRef.current?.click();
-    };
+    const handleButtonClick = () => fileInputRef.current?.click();
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
 
-        setLoading(true);
+        setUploading(true);
+        setCreated(0);
+        setRows([]);
 
         const reader = new FileReader();
         
@@ -232,7 +172,7 @@ export default function UmkartonsPage() {
             const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
             const parsedRows: ParsedRow[] = (jsonData as any[]).map((row) => {
-                const staticData = {
+                const data = {
                     article: row['Artikelnr']?.toString()?.trim(),
                     height: parseFloat(row['Height']) || undefined,
                     depth: parseFloat(row['Depth']) || undefined,
@@ -246,21 +186,7 @@ export default function UmkartonsPage() {
                     bedoManu: row['Bedo/Manual']?.toString()?.trim() || undefined,
                 };
 
-                const tiers: RangeTier[] = [];
-                Object.keys(row).forEach((key) => {
-                    if (/^\d+\s*-\s*\d+$/.test(key)) {
-                        const [minStr, maxStr] = key.split('-');
-                        const min = parseFloat(minStr);
-                        const max = parseFloat(maxStr);
-                        const price = parseFloat(row[key]);
-                        if (!isNaN(min) && !isNaN(max) && !isNaN(price)) {
-                            tiers.push({ min, max, price });
-                        }
-                    }
-                });
-                tiers.sort((a, b) => a.min - b.min);
-
-                return { ...staticData, prices: tiers };
+                return data;
             });
 
             setRows(parsedRows);
@@ -291,18 +217,18 @@ export default function UmkartonsPage() {
                         skippedCount++;
                     } else {
                         createdCount++;
-                        
-                        setUmkartons(prev => [result, ...prev]); 
-                        setCreated(prev => prev + 1);
+                        setUmkartons(prev => [result, ...prev]);
                     }
 
                 } catch (err) {
                     console.error(`Error uploading ${row.article}`, err);
                     toast.error(`Failed to upload umkarton ${row.article}`);
                 }
+
+                setCreated(prev => prev + 1);
             }
 
-            setLoading(false);
+            await loadData();
             
             if (createdCount > 0 || skippedCount > 0) {
                 toast.success(`Upload complete! Created: ${createdCount}, Skipped: ${skippedCount}`);
@@ -310,214 +236,138 @@ export default function UmkartonsPage() {
                 toast.info("No new umkartons were added.");
             }
             
+            setUploading(false);
             if(fileInputRef.current) fileInputRef.current.value = '';
         };
 
         reader.readAsBinaryString(file);
     };
+
+    const progressPercentage = rows.length > 0 ? Math.round((created / rows.length) * 100) : 0;
     
     return(
-        <div className='min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 py-10 px-6'>
-            <div className="p-4 text-center">
+        <div className='min-h-screen bg-gray-50/50 py-10 px-4 sm:px-6 lg:px-8'>
+            <div className="w-[95%] mx-auto">
 
-                <div className="flex flex-col items-center justify-center gap-4 mb-8">
-
-                    <h1 className="text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-                        Umkartons Overview
-                    </h1>
-
-                    <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8">
-                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                            <DialogTrigger asChild className="cursor-pointer">
-                                <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all duration-200">
-                                    <PlusCircle className="w-4 h-4" />
-                                    New Umkarton
-                                </Button>
-                            </DialogTrigger>
-
-                            <DialogContent className="sm:max-w-md">
-                                <DialogHeader>
-                                    <DialogTitle>Create New Umkarton</DialogTitle>
-                                </DialogHeader>
-
-                                <div className="flex flex-col gap-3 py-2 max-h-[60vh] overflow-y-auto px-1">
-                                    <CreateInput
-                                        title="Umkarton article"
-                                        placeholder="e.g. M69065"
-                                        value={form.article}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, article: e.target.value }))
-                                        }
-                                    />
-
-                                    <CreateInput
-                                        title="Umkarton price"
-                                        placeholder="e.g. 0.15"
-                                        value={form.price}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, price: e.target.value }))
-                                        }
-                                    />
-
-                                    <CreateInput
-                                        title="Umkarton height"
-                                        placeholder="e.g. 39 or 45"
-                                        value={form.height}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, height: e.target.value }))
-                                        }
-                                    />
-
-                                    <CreateInput
-                                        title="Umkarton depth"
-                                        placeholder="e.g. 39 or 45"
-                                        value={form.depth}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, depth: e.target.value }))
-                                        }
-                                    />
-
-                                    <CreateInput
-                                        title="Umkarton width"
-                                        placeholder="e.g. 39 or 45"
-                                        value={form.width}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, width: e.target.value }))
-                                        }
-                                    />
-
-                                    <CreateInput
-                                        title="Umkarton fs dimension"
-                                        placeholder="e.g. Paper knife / No knife"
-                                        value={form.knife}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, knife: e.target.value }))
-                                        }
-                                    />
-
-                                    <CreateInput
-                                        title="Umkarton display carton"
-                                        placeholder="e.g. 350"
-                                        value={form.density}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, density: e.target.value }))
-                                        }
-                                    />
-
-                                    {priceTiers && priceTiers.map(tier => (
-                                        <CreateInput
-                                            key={tier.id}
-                                            title={<Label tier={tier} />}
-                                            placeholder="e.g. 0.12"
-                                            value={newUmkartonPrices[tier.id]}
-                                            onChange={(e) =>
-                                                setNewUmkartonPrices((prev) => ({ ...prev, [tier.id]: e.target.value }))
-                                            }
-                                        />
-                                    ))}
-                                </div>
-
-                                <DialogFooter className="flex justify-end gap-2 mt-3">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setIsDialogOpen(false)}
-                                        className="cursor-pointer"
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
-                                        onClick={handleCreateUmkarton}
-                                    >
-                                        Create
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-
-                        <Dialog open={isPriceTierDialogOpen} onOpenChange={setIsPriceTierDialogOpen}>
-                            <DialogTrigger asChild className="cursor-pointer">
-                                <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all duration-200">
-                                    <PlusCircle className="w-4 h-4" />
-                                    New Price Tier
-                                </Button>
-                            </DialogTrigger>
-
-                            <DialogContent className="sm:max-w-md">
-                                <DialogHeader>
-                                    <DialogTitle>Create New Price Tier</DialogTitle>
-                                </DialogHeader>
-
-                                <div className="flex flex-col gap-3 py-2">
-                                    <CreateInput
-                                        type="number"
-                                        title="Minimum quantity"
-                                        placeholder="e.g. 100001"
-                                        value={priceTierForm.minPrice || ''}
-                                        onChange={(e) =>
-                                            setPriceTierForm((prev) => ({ ...prev, minPrice: e.target.value }))
-                                        }
-                                    />
-
-                                    <CreateInput
-                                        type="number"
-                                        title="Maximum quantity"
-                                        placeholder="e.g. 500000"
-                                        value={priceTierForm.maxPrice || ''}
-                                        onChange={(e) =>
-                                            setPriceTierForm((prev) => ({ ...prev, maxPrice: e.target.value }))
-                                        }
-                                    />
-                                </div>
-
-                                <DialogFooter className="flex justify-end gap-2 mt-3">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setIsPriceTierDialogOpen(false)}
-                                        className="cursor-pointer"
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
-                                        onClick={handleCreatePriceTier}
-                                    >
-                                        Create
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-
-                        <div>
-                            <input 
-                                type="file" 
-                                accept=".xlsx, .xls" 
-                                ref={fileInputRef} 
-                                onChange={handleFileChange} 
-                                className="hidden" 
-                                style={{ display: 'none' }} 
-                            />
-                            <Button 
-                                onClick={handleButtonClick}
-                                className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all duration-200 cursor-pointer"
-                            >
-                                <Upload className="w-4 h-4" />
-                                Load umkarton table
-                            </Button>
-                        </div>
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-8">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
+                            <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                                <Package size={28} />
+                            </div>
+                            Umkartons
+                        </h1>
+                        <p className="text-gray-500 mt-1 ml-1">Manage umkartons, dimensions, and price tiers.</p>
                     </div>
-                </div>        
 
-                {loading === true ? (
-                    <div>Loading... [{created} / {rows?.length}]</div>
-                ) : umkartons?.length > 0 ? (
-                    <UmkartonsTable umkartons={umkartons as any} tiers={priceTiers} onDeleteUmkarton={handleDeleteUmkarton} onDeleteTier={handleDeleteTier} />
+                    <div className="flex flex-wrap items-center gap-3">
+
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <input 
+                                type="text" 
+                                placeholder="Search by Article..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-9 pr-4 h-11 w-64 rounded-xl border border-gray-200 bg-white text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
+                            />
+                        </div>
+
+                        <div className="h-8 w-px bg-gray-300 mx-2 hidden xl:block"></div>
+
+                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md rounded-xl px-4 h-11 transition-all flex items-center gap-2 cursor-pointer">
+                                    <Plus className="w-4 h-4" /> New Umkarton
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+                                <DialogHeader><DialogTitle>Create New Umkarton</DialogTitle></DialogHeader>
+                                <div className="grid grid-cols-2 gap-4 py-4">
+                                    <div className="col-span-2"><CreateInput title="Article" placeholder="M69065" value={form.article} onChange={(e) => setForm((p) => ({ ...p, article: e.target.value }))} /></div>
+                                    
+                                    <CreateInput title="FS quantity" placeholder="24" value={form.fsQty} onChange={(e) => setForm((p) => ({ ...p, fsQty: e.target.value }))} />
+                                    <CreateInput title="FS dimension" placeholder="45" value={form.fsDimension} onChange={(e) => setForm((p) => ({ ...p, fsDimension: e.target.value }))} />
+                                    <CreateInput title="Display carton" placeholder="ja" value={form.displayCarton} onChange={(e) => setForm((p) => ({ ...p, displayCarton: e.target.value }))} />
+                                    <CreateInput title="Color" placeholder="0" value={form.color} onChange={(e) => setForm((p) => ({ ...p, color: e.target.value }))} />
+                                    <CreateInput title="Bedo/manu" placeholder="ja" value={form.bedoManu} onChange={(e) => setForm((p) => ({ ...p, bedoManu: e.target.value }))} />
+                                    <CreateInput title="Deckel" placeholder="M80251" value={form.deckel} onChange={(e) => setForm((p) => ({ ...p, deckel: e.target.value }))} />
+
+                                    <div className="col-span-2 grid grid-cols-3 gap-4">
+                                        <CreateInput title="Height" placeholder="39" value={form.height} onChange={(e) => setForm((p) => ({ ...p, height: e.target.value }))} />
+                                        <CreateInput title="Width" placeholder="39" value={form.width} onChange={(e) => setForm((p) => ({ ...p, width: e.target.value }))} />
+                                        <CreateInput title="Depth" placeholder="39" value={form.depth} onChange={(e) => setForm((p) => ({ ...p, depth: e.target.value }))} />
+                                    </div>
+
+                                    <div className="col-span-2 h-px bg-gray-100 my-2" />
+                                    <div className="col-span-2">
+                                        <h4 className="text-sm font-medium mb-2 text-gray-700">Price</h4>
+                                        <CreateInput title="" placeholder="0.15" value={form.basePrice} onChange={(e) => setForm((p) => ({ ...p, basePrice: e.target.value }))} />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="cursor-pointer">Cancel</Button>
+                                    <Button onClick={handleCreateUmkarton} className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">Create</Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+
+                        <input type="file" accept=".xlsx, .xls" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
+                        <Button onClick={handleButtonClick} variant="secondary" className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl px-4 h-11 flex items-center gap-2 cursor-pointer shadow-sm">
+                            <Upload className="w-4 h-4" /> Import Excel
+                        </Button>
+
+                        {umkartons.length > 0 && (
+                            <Button 
+                                onClick={handleDeleteAll} 
+                                variant="destructive" 
+                                className="bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 rounded-xl px-3 h-11 flex items-center gap-2 cursor-pointer transition-colors"
+                                title="Delete all items"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </Button>
+                        )}
+                    </div>
+                </div>
+
+                {loading ? (
+                    <UmkartonsSkeleton />
+                ) : uploading ? (
+                     <div className="p-10 text-center bg-white rounded-2xl shadow border border-gray-100 max-w-lg mx-auto mt-20">
+                        <div className="mb-6 text-blue-500 flex justify-center"><Upload className="w-12 h-12 animate-bounce" /></div>
+                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Uploading Umkartons...</h3>
+                        <p className="text-gray-500 font-medium mb-4">
+                            Processed <span className="text-blue-600 font-bold">{created}</span> of <span className="text-gray-900 font-bold">{rows.length}</span> items
+                        </p>
+                        <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden border border-gray-200">
+                            <div 
+                                className="bg-blue-500 h-full rounded-full transition-all duration-300 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]" 
+                                style={{ width: `${progressPercentage}%` }}
+                            />
+                        </div>
+                        <p className="text-xs text-gray-400 mt-2 text-right">{progressPercentage}%</p>
+                     </div>
+                ) : filteredUmkartons.length > 0 ? (
+                    <UmkartonsTable 
+                        umkartons={filteredUmkartons as any}
+                        onDeleteUmkarton={handleDeleteUmkarton}
+                    />
                 ) : (
-                    <LoadingCard text="Loading umkartons..." />
+                    <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100">
+                        <div className="inline-flex p-4 bg-gray-50 rounded-full mb-4 text-gray-400"><Package size={40} /></div>
+                        <h3 className="text-lg font-medium text-gray-900">
+                            {searchTerm ? `No results for "${searchTerm}"` : "No umkartons found"}
+                        </h3>
+                        {searchTerm && (
+                            <Button variant="link" onClick={() => setSearchTerm("")} className="mt-2 text-blue-600 cursor-pointer">
+                                Clear search
+                            </Button>
+                        )}
+                    </div>
                 )}
 
             </div>
-            <ToastContainer />
+            <ToastContainer position="top-right" theme="colored" />
         </div>
     )
 }

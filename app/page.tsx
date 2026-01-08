@@ -6,59 +6,66 @@ import { Calculation } from "@prisma/client"
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 import { Card, CardContent } from "@/components/ui/card"
 import { StatCard } from "@/components/stat-card"
+import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton"
 
 export default function HomePage() {
-  const [stats, setStats] = useState({
-    total: 0,
-    today: 0,
-    avgPrice: 0,
-    popularMaterial: '',
-  })
-  const [dailyData, setDailyData] = useState<any[]>([])
-  const [materialData, setMaterialData] = useState<any[]>([])
-  const [recent, setRecent] = useState<Calculation[]>([])
+    const [stats, setStats] = useState({
+        total: 0,
+        today: 0,
+        avgPrice: 0,
+        popularMaterial: '',
+    })
+    const [dailyData, setDailyData] = useState<any[]>([])
+    const [materialData, setMaterialData] = useState<any[]>([])
+    const [recent, setRecent] = useState<Calculation[]>([])
+    const [isLoading, setIsloading] = useState(true)
 
-  useEffect(() => {
-    async function fetchData() {
-        const data = await Api.calculations.getAll()
+    useEffect(() => {
+        async function fetchData() {
+            const data = await Api.calculations.getAll()
 
-        const total = data.length
+            const total = data.length
 
-        const today = data.filter(c => new Date(c.createdAt).toDateString() === new Date().toDateString()).length
+            const today = data.filter(c => new Date(c.createdAt).toDateString() === new Date().toDateString()).length
 
-        const avgPrice = data.reduce((acc, c) => acc + (c.totalPrice || 0), 0) / (data.length || 1)
+            const avgPrice = data.reduce((acc, c) => acc + (c.totalPrice || 0), 0) / (data.length || 1)
 
-        const materialMap: Record<string, number> = {}
-        data.forEach(c => {
-            const mat = c.material || 'Unknown'
-            materialMap[mat] = (materialMap[mat] || 0) + 1
-        })
-        const popularMaterial = Object.entries(materialMap).sort((a, b) => b[1] - a[1])[0]?.[0] || '-'
+            const materialMap: Record<string, number> = {}
+            data.forEach(c => {
+                const mat = c.material || 'Unknown'
+                materialMap[mat] = (materialMap[mat] || 0) + 1
+            })
+            const popularMaterial = Object.entries(materialMap).sort((a, b) => b[1] - a[1])[0]?.[0] || '-'
 
-        const map: Record<string, number> = {}
-        data.forEach(c => {
-            const day = new Date(c.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
-            map[day] = (map[day] || 0) + 1
-        })
-        
-        const dailyData = Object.entries(map).map(([day, count]) => ({ day, count })).sort(
-            (a, b) => new Date(a.day).getTime() - new Date(b.day).getTime()
-        )
+            const map: Record<string, number> = {}
+            data.forEach(c => {
+                const day = new Date(c.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
+                map[day] = (map[day] || 0) + 1
+            })
+            
+            const dailyData = Object.entries(map).map(([day, count]) => ({ day, count })).sort(
+                (a, b) => new Date(a.day).getTime() - new Date(b.day).getTime()
+            )
 
-        const materialData = Object.entries(materialMap).map(([name, value]) => ({ name, value }))
+            const materialData = Object.entries(materialMap).map(([name, value]) => ({ name, value }))
 
-        const recent = data.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)).slice(0, 5)
+            const recent = data.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)).slice(0, 5)
 
-        setStats({ total, today, avgPrice, popularMaterial })
-        setDailyData(dailyData)
-        setMaterialData(materialData)
-        setRecent(recent)
+            setStats({ total, today, avgPrice, popularMaterial })
+            setDailyData(dailyData)
+            setMaterialData(materialData)
+            setRecent(recent)
+            setIsloading(false)
+        }
+
+        fetchData()
+    }, [])
+
+    const colors = ['#6366f1', '#22c55e', '#f97316', '#ef4444', '#14b8a6']
+
+    if(isLoading){
+        return <DashboardSkeleton />
     }
-
-    fetchData()
-  }, [])
-
-  const colors = ['#6366f1', '#22c55e', '#f97316', '#ef4444', '#14b8a6']
 
     return (
         <div className="min-h-screen w-full bg-gray-100 p-8">
@@ -73,7 +80,7 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                 <Card className="shadow-lg border-none">
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 md:p-6">
                         <h2 className="text-xl font-semibold mb-4">Calculations by Day</h2>
                         <ResponsiveContainer width="100%" height={280}>
                             <LineChart data={dailyData}>
@@ -87,7 +94,7 @@ export default function HomePage() {
                 </Card>
 
                 <Card className="shadow-lg border-none">
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 md:p-6">
                         <h2 className="text-xl font-semibold mb-4">Material Distribution</h2>
                         <ResponsiveContainer width="100%" height={280}>
                             <PieChart>
@@ -103,29 +110,31 @@ export default function HomePage() {
                 </Card>
             </div>
 
-            <Card className="shadow-lg border-none overflow-x-auto">
-                <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Recent Calculations</h2>
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="bg-gray-200 text-gray-700">
-                            <th className="p-2 rounded-tl-lg">Date</th>
-                            <th className="p-2">Material</th>
-                            <th className="p-2">Type</th>
-                            <th className="p-2 rounded-tr-lg">Total (€)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {recent.map((c, i) => (
-                            <tr key={i} className="border-b hover:bg-gray-100">
-                            <td className="p-2">{new Date(c.createdAt).toLocaleDateString()}</td>
-                            <td className="p-2">{c.material}</td>
-                            <td className="p-2">{c.roll}</td>
-                            <td className="p-2">{c.totalPrice?.toFixed(2) || '-'}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <Card className="shadow-lg border-none">
+                <CardContent className="p-4 md:p-6">
+                    <h2 className="text-xl font-semibold mb-4">Recent Calculations</h2>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-gray-200 text-gray-700">
+                                    <th className="p-2 rounded-tl-lg">Date</th>
+                                    <th className="p-2">Material</th>
+                                    <th className="p-2">Type</th>
+                                    <th className="p-2 rounded-tr-lg">Total (€)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {recent.map((c, i) => (
+                                    <tr key={i} className="border-b hover:bg-gray-100">
+                                    <td className="p-2">{new Date(c.createdAt).toLocaleDateString()}</td>
+                                    <td className="p-2">{c.material}</td>
+                                    <td className="p-2">{c.roll}</td>
+                                    <td className="p-2">{c.totalPrice?.toFixed(2) || '-'}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </CardContent>
             </Card>
         </div>

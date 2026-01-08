@@ -2,13 +2,13 @@
 
 import { CreateInput } from "@/components/create-input";
 import { Label } from "@/components/label";
-import { LoadingCard } from "@/components/loading-card";
+import { SkilletsSkeleton } from "@/components/skeletons/skillet-skeleton";
 import { SkilletsTable } from "@/components/skillets-table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Api } from "@/services/api-client";
 import { PriceTier, Skillet } from "@prisma/client";
-import { PlusCircle, Upload } from "lucide-react";
+import { BoxSelect, Layers, Plus, Search, Trash2, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
@@ -36,42 +36,46 @@ export default function SkilletsPage() {
     const [skillets, setSkillets] = useState<Skillet[]>([]);
     const [priceTiers, setPriceTiers] = useState<PriceTier[]>([])
     const [rows, setRows] = useState<ParsedRow[]>([]);
+    
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isPriceTierDialogOpen, setIsPriceTierDialogOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [uploading, setUploading] = useState(false);
+    
     const [newSkilletPrices, setNewSkilletPrices] = useState<Record<string, string>>({})
-    const [loading, setLoading] = useState(false);
     const [created, setCreated] = useState(0);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const [form, setForm] = useState({
-        article: '',
-        height: '',
-        depth: '',
-        width: '',
-        price: '',
-        knife: '',
-        density: '',
+        article: '', height: '', depth: '', width: '', price: '', knife: '', density: '',
     });
 
     const [priceTierForm, setPriceTierForm] = useState({
-        minPrice: null,
-        maxPrice: null,
+        minPrice: null, maxPrice: null,
     });
-    
-    useEffect(() => {
-        async function fetchData() {
 
+    const loadData = async () => {
+        try {
             const skillets = await Api.skillets.getAll();
-            const tiers = await Api.skillets.getAllTiers()
+            const tiers = await Api.skillets.getAllTiers();
 
             setSkillets(skillets);
-
-            setPriceTiers(tiers.sort((a, b) => {
-                return a.minQty - b.minQty
-            }))
+            setPriceTiers(tiers.sort((a, b) => a.minQty - b.minQty));
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to load data");
+        } finally {
+            setLoading(false);
         }
-
-        fetchData();
+    }
+    
+    useEffect(() => {
+        loadData();
     }, []);
+
+    const filteredSkillets = skillets.filter(item => 
+        item.article.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const handleCreateSkillet = async () => {
         if (!form.article || !form.width || !form.height || !form.depth || !form.knife || !form.density || !form.price) {
@@ -137,26 +141,20 @@ export default function SkilletsPage() {
 
     const handleCreatePriceTier = async () => {
         if (!priceTierForm.minPrice || !priceTierForm.maxPrice) {
-            toast.error('Please fill all fields!')
-            return;
+            toast.error('Please fill all fields!'); return;
         }
-
         try {
-            const newTier = await Api.skillets.createPriceTier({ minQty: Number(priceTierForm.minPrice), maxQty: Number(priceTierForm.maxPrice) })
-            setPriceTiers((prev) => [...prev, newTier].sort((a, b) => {
-                return a.minQty - b.minQty
-            }))
-            toast.success(`New price tier created!`)
+            const newTier = await Api.skillets.createPriceTier({ minQty: Number(priceTierForm.minPrice), maxQty: Number(priceTierForm.maxPrice) });
+            setPriceTiers((prev) => [...prev, newTier].sort((a, b) => a.minQty - b.minQty));
+            toast.success(`New price tier created!`);
             setIsPriceTierDialogOpen(false);
             setPriceTierForm({ minPrice: null, maxPrice: null});
         } catch (error) {
-            console.error(error);
-            toast.error("Failed to create price tier")
+            toast.error("Failed to create price tier");
         }
     };
 
     const handleDeleteTier = async (tierId: string) => {
-
         Swal.fire({
             title: `Do you want to delete price tier?`,
             showCancelButton: true,
@@ -200,17 +198,40 @@ export default function SkilletsPage() {
         });
     };
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const handleButtonClick = () => {
-        fileInputRef.current?.click();
+    const handleDeleteAll = async () => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This will delete ALL skillets. This action cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#374151',
+            confirmButtonText: 'Yes, delete all'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await Api.skillets.deleteAllSkillets(); 
+                    
+                    setSkillets([]);
+                    toast.success("All skillets deleted successfully");
+                } catch (error) {
+                    console.error(error);
+                    toast.error("Failed to delete all skillets");
+                }
+            }
+        });
     };
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const handleButtonClick = () => fileInputRef.current?.click();
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
 
-        setLoading(true);
+        setUploading(true);
+        setCreated(0);
+        setRows([]);
 
         const reader = new FileReader();
         
@@ -231,11 +252,11 @@ export default function SkilletsPage() {
                 const staticData = {
                     article: row['Artikelnr']?.toString()?.trim() || '',
                     height: parseFloat(row['Height']) || undefined,
-                    knife: row['Säge']?.toString()?.trim() || '',
-                    density: parseFloat(row['Grammatur']) || undefined,
                     depth: parseFloat(row['Depth']) || undefined,
                     width: parseFloat(row['Width']) || undefined,
-                    basePrice: parseFloat(row['Actual EPF price']) || undefined,
+                    knife: row['Knife']?.toString()?.trim() || '',
+                    density: parseFloat(row['Density']) || undefined,
+                    basePrice: parseFloat(row['Base price']) || undefined,
                 };
 
                 const tiers: RangeTier[] = [];
@@ -269,7 +290,7 @@ export default function SkilletsPage() {
                         height: row.height,
                         depth: row.depth,
                         width: row.width,
-                        knife: row.knife,
+                        knife: row.knife === 'ja' ? 'With knife' : 'Without knife',
                         density: row.density,
                         price: row.basePrice,
                         prices: row.prices
@@ -279,18 +300,16 @@ export default function SkilletsPage() {
                         skippedCount++;
                     } else {
                         createdCount++;
-                        
-                        setSkillets(prev => [result, ...prev]); 
-                        setCreated(prev => prev + 1);
+                        setSkillets(prev => [result, ...prev]);
                     }
 
                 } catch (err) {
                     console.error(`Error uploading ${row.article}`, err);
                     toast.error(`Failed to upload skillet ${row.article}`);
                 }
-            }
 
-            setLoading(false);
+                setCreated(prev => prev + 1);
+            }
             
             if (createdCount > 0 || skippedCount > 0) {
                 toast.success(`Upload complete! Created: ${createdCount}, Skipped: ${skippedCount}`);
@@ -298,214 +317,164 @@ export default function SkilletsPage() {
                 toast.info("No new skillets were added.");
             }
             
+            await loadData();
+            setUploading(false);
             if(fileInputRef.current) fileInputRef.current.value = '';
         };
-
         reader.readAsBinaryString(file);
     };
+
+    const progressPercentage = rows.length > 0 ? Math.round((created / rows.length) * 100) : 0;
     
     return(
-        <div className='min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 py-10 px-6'>
-            <div className="p-4 text-center">
+        <div className='min-h-screen bg-gray-50/50 py-10 px-4 sm:px-6 lg:px-8'>
+            <div className="w-[95%] mx-auto">
 
-                <div className="flex flex-col items-center justify-center gap-4 mb-8">
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-8">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
+                            <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                                <BoxSelect size={28} />
+                            </div>
+                            Skillets Management
+                        </h1>
+                        <p className="text-gray-500 mt-1 ml-1">Manage skillet dimensions, properties, and dynamic price tiers.</p>
+                    </div>
 
-                    <h1 className="text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-                        Skillets Overview
-                    </h1>
+                    <div className="flex flex-wrap items-center gap-3">
 
-                    <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8">
+                        <div className="relative order-last xl:order-first w-full xl:w-auto mt-2 xl:mt-0">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <input 
+                                type="text" 
+                                placeholder="Search article..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-9 pr-4 h-11 w-full xl:w-64 rounded-xl border border-gray-200 bg-white text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
+                            />
+                        </div>
+
+                    <div className="hidden xl:block h-8 w-px bg-gray-300 mx-1"></div>
+
                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                            <DialogTrigger asChild className="cursor-pointer">
-                                <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all duration-200">
-                                    <PlusCircle className="w-4 h-4" />
-                                    New Skillet
+                            <DialogTrigger asChild>
+                                <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md rounded-xl px-4 h-11 transition-all flex items-center gap-2 cursor-pointer">
+                                    <Plus className="w-4 h-4" /> New Skillet
                                 </Button>
                             </DialogTrigger>
-
-                            <DialogContent className="sm:max-w-md">
+                            <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
                                 <DialogHeader>
                                     <DialogTitle>Create New Skillet</DialogTitle>
                                 </DialogHeader>
+                                <div className="grid grid-cols-2 gap-4 py-4">
+                                    <div className="col-span-2"><CreateInput title="Article" placeholder="M69065" value={form.article} onChange={(e) => setForm((p) => ({ ...p, article: e.target.value }))} /></div>
+                                    <CreateInput title="Knife Type" placeholder="Paper / No knife" value={form.knife} onChange={(e) => setForm((p) => ({ ...p, knife: e.target.value }))} />
+                                    <CreateInput title="Density" placeholder="350" value={form.density} onChange={(e) => setForm((p) => ({ ...p, density: e.target.value }))} />
+                                    
+                                    <div className="col-span-2 grid grid-cols-3 gap-4">
+                                         <CreateInput title="Height" placeholder="39" value={form.height} onChange={(e) => setForm((p) => ({ ...p, height: e.target.value }))} />
+                                         <CreateInput title="Width" placeholder="39" value={form.width} onChange={(e) => setForm((p) => ({ ...p, width: e.target.value }))} />
+                                         <CreateInput title="Depth" placeholder="39" value={form.depth} onChange={(e) => setForm((p) => ({ ...p, depth: e.target.value }))} />
+                                    </div>
 
-                                <div className="flex flex-col gap-3 py-2 max-h-[60vh] overflow-y-auto px-1">
-                                    <CreateInput
-                                        title="Skillet article"
-                                        placeholder="e.g. M69065"
-                                        value={form.article}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, article: e.target.value }))
-                                        }
-                                    />
+                                    <div className="col-span-2 h-px bg-gray-100 my-2" />
+                                    
+                                    <div className="col-span-2">
+                                        <h4 className="text-sm font-medium mb-2 text-gray-700">Base Price</h4>
+                                        <CreateInput title="" placeholder="0.15" value={form.price} onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))} />
+                                    </div>
 
-                                    <CreateInput
-                                        title="Skillet price"
-                                        placeholder="e.g. 0.15"
-                                        value={form.price}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, price: e.target.value }))
-                                        }
-                                    />
-
-                                    <CreateInput
-                                        title="Skillet height"
-                                        placeholder="e.g. 39 or 45"
-                                        value={form.height}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, height: e.target.value }))
-                                        }
-                                    />
-
-                                    <CreateInput
-                                        title="Skillet depth"
-                                        placeholder="e.g. 39 or 45"
-                                        value={form.depth}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, depth: e.target.value }))
-                                        }
-                                    />
-
-                                    <CreateInput
-                                        title="Skillet width"
-                                        placeholder="e.g. 39 or 45"
-                                        value={form.width}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, width: e.target.value }))
-                                        }
-                                    />
-
-                                    <CreateInput
-                                        title="Skillet knife"
-                                        placeholder="e.g. Paper knife / No knife"
-                                        value={form.knife}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, knife: e.target.value }))
-                                        }
-                                    />
-
-                                    <CreateInput
-                                        title="Skillet density"
-                                        placeholder="e.g. 350"
-                                        value={form.density}
-                                        onChange={(e) =>
-                                            setForm((prev) => ({ ...prev, density: e.target.value }))
-                                        }
-                                    />
-
-                                    {priceTiers && priceTiers.map(tier => (
-                                        <CreateInput
-                                            key={tier.id}
-                                            title={<Label tier={tier} />}
-                                            placeholder="e.g. 0.12"
-                                            value={newSkilletPrices[tier.id]}
-                                            onChange={(e) =>
-                                                setNewSkilletPrices((prev) => ({ ...prev, [tier.id]: e.target.value }))
-                                            }
-                                        />
-                                    ))}
+                                    <div className="col-span-2">
+                                        <h4 className="text-sm font-medium mb-2 text-gray-700">Tier Prices</h4>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                            {priceTiers.map(tier => (
+                                                <CreateInput 
+                                                    key={tier.id} 
+                                                    title={<Label tier={tier} />} 
+                                                    placeholder="0.12" 
+                                                    value={newSkilletPrices[tier.id]} 
+                                                    onChange={(e) => setNewSkilletPrices((p) => ({ ...p, [tier.id]: e.target.value }))} 
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
-
-                                <DialogFooter className="flex justify-end gap-2 mt-3">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setIsDialogOpen(false)}
-                                        className="cursor-pointer"
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
-                                        onClick={handleCreateSkillet}
-                                    >
-                                        Create
-                                    </Button>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="cursor-pointer">Cancel</Button>
+                                    <Button onClick={handleCreateSkillet} className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">Create</Button>
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
 
                         <Dialog open={isPriceTierDialogOpen} onOpenChange={setIsPriceTierDialogOpen}>
-                            <DialogTrigger asChild className="cursor-pointer">
-                                <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all duration-200">
-                                    <PlusCircle className="w-4 h-4" />
-                                    New Price Tier
+                            <DialogTrigger asChild>
+                                <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 rounded-xl px-4 h-11 flex items-center gap-2 cursor-pointer">
+                                    <Layers className="w-4 h-4" /> Add Tier
                                 </Button>
                             </DialogTrigger>
-
-                            <DialogContent className="sm:max-w-md">
-                                <DialogHeader>
-                                    <DialogTitle>Create New Price Tier</DialogTitle>
-                                </DialogHeader>
-
-                                <div className="flex flex-col gap-3 py-2">
-                                    <CreateInput
-                                        type="number"
-                                        title="Minimum quantity"
-                                        placeholder="e.g. 100001"
-                                        value={priceTierForm.minPrice || ''}
-                                        onChange={(e) =>
-                                            setPriceTierForm((prev) => ({ ...prev, minPrice: e.target.value }))
-                                        }
-                                    />
-
-                                    <CreateInput
-                                        type="number"
-                                        title="Maximum quantity"
-                                        placeholder="e.g. 500000"
-                                        value={priceTierForm.maxPrice || ''}
-                                        onChange={(e) =>
-                                            setPriceTierForm((prev) => ({ ...prev, maxPrice: e.target.value }))
-                                        }
-                                    />
+                            <DialogContent>
+                                <DialogHeader><DialogTitle>Add Price Tier</DialogTitle></DialogHeader>
+                                <div className="grid gap-4 py-4">
+                                    <CreateInput type="number" title="Min Qty" placeholder="1000" value={priceTierForm.minPrice || ''} onChange={(e) => setPriceTierForm(p => ({...p, minPrice: e.target.value}))} />
+                                    <CreateInput type="number" title="Max Qty" placeholder="5000" value={priceTierForm.maxPrice || ''} onChange={(e) => setPriceTierForm(p => ({...p, maxPrice: e.target.value}))} />
                                 </div>
-
-                                <DialogFooter className="flex justify-end gap-2 mt-3">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setIsPriceTierDialogOpen(false)}
-                                        className="cursor-pointer"
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
-                                        onClick={handleCreatePriceTier}
-                                    >
-                                        Create
-                                    </Button>
+                                <DialogFooter>
+                                     <Button variant="outline" onClick={() => setIsPriceTierDialogOpen(false)} className="cursor-pointer">Cancel</Button>
+                                     <Button onClick={handleCreatePriceTier} className="bg-blue-600 text-white cursor-pointer">Add Tier</Button>
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
 
-                        <div>
-                            <input 
-                                type="file" 
-                                accept=".xlsx, .xls" 
-                                ref={fileInputRef} 
-                                onChange={handleFileChange} 
-                                className="hidden" 
-                                style={{ display: 'none' }} 
-                            />
+                        <input type="file" accept=".xlsx, .xls" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
+                        <Button onClick={handleButtonClick} variant="secondary" className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl px-4 h-11 flex items-center gap-2 cursor-pointer shadow-sm">
+                            <Upload className="w-4 h-4" /> Import Excel
+                        </Button>
+
+                        {skillets.length > 0 && (
                             <Button 
-                                onClick={handleButtonClick}
-                                className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all duration-200 cursor-pointer"
+                                onClick={handleDeleteAll} 
+                                variant="destructive" 
+                                className="bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 rounded-xl px-3 h-11 flex items-center gap-2 cursor-pointer transition-colors"
+                                title="Delete all items"
                             >
-                                <Upload className="w-4 h-4" />
-                                Load skillet table
+                                <Trash2 className="w-4 h-4" />
                             </Button>
-                        </div>
+                        )}
                     </div>
                 </div>        
 
-                {loading === true ? (
-                    <div>Loading... [{created} / {rows?.length}]</div>
-                ) : skillets?.length > 0 ? (
-                    <SkilletsTable skillets={skillets as any} tiers={priceTiers} onDeleteSkillet={handleDeleteSkillet} onDeleteTier={handleDeleteTier} />
+                {loading ? (
+                    <SkilletsSkeleton />
+                ) : uploading ? (
+                    <div className="p-10 text-center bg-white rounded-2xl shadow border border-gray-100 max-w-lg mx-auto mt-20">
+                        <div className="mb-6 text-blue-500 flex justify-center">
+                            <Upload className="w-12 h-12 animate-bounce" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Uploading Skillets...</h3>
+                        
+                        <p className="text-gray-500 font-medium mb-4">
+                            Processed <span className="text-blue-600 font-bold">{created}</span> of <span className="text-gray-900 font-bold">{rows.length}</span> items
+                        </p>
+
+                        <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden border border-gray-200">
+                            <div 
+                                className="bg-blue-500 h-full rounded-full transition-all duration-300 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]" 
+                                style={{ width: `${progressPercentage}%` }}
+                            />
+                        </div>
+                        <p className="text-xs text-gray-400 mt-2 text-right">{progressPercentage}%</p>
+                    </div>
+                ) : filteredSkillets?.length > 0 ? (
+                    <SkilletsTable skillets={filteredSkillets as any} tiers={priceTiers} onDeleteSkillet={handleDeleteSkillet} onDeleteTier={handleDeleteTier} />
                 ) : (
-                    <LoadingCard text="Loading skillets..." />
+                    <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100">
+                        <div className="inline-flex p-4 bg-gray-50 rounded-full mb-4 text-gray-400"><BoxSelect size={40} /></div>
+                        <h3 className="text-lg font-medium text-gray-900">No skillets found</h3>
+                    </div>
                 )}
 
             </div>
-            <ToastContainer />
+            <ToastContainer position="top-right" theme="colored" />
         </div>
     )
 }

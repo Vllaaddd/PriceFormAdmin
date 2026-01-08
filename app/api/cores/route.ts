@@ -31,3 +31,10 @@ export async function POST(req: NextRequest){
     }
 
 }
+
+export async function DELETE(){
+
+    const core = await prisma.core.deleteMany()
+
+    return NextResponse.json(core)
+}

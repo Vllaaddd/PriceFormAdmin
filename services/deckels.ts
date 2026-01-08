@@ -42,6 +42,13 @@ export const deleteDeckel = async(id: string): Promise<Deckel> => {
 
 }
 
+export const deleteAllDeckels = async(): Promise<void> => {
+
+    const { data } = await axiosInstance.delete(`${ApiRoutes.DECKELS}`)
+
+    return data
+}
+
 export const find = async (filters: {
     article: string;
 }): Promise<Deckel> => {

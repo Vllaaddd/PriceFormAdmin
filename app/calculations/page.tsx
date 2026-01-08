@@ -4,17 +4,20 @@ import { useEffect, useState } from "react";
 import { Api } from "@/services/api-client";
 import { Calculation } from "@prisma/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "sonner";
 import Swal from "sweetalert2";
 import Link from "next/link";
 import { LoadingCard } from "@/components/loading-card";
 import { Edit2, Eye, Trash2, Search, Calendar, Layers, Ruler, FileText } from "lucide-react"; 
+import { useSearchParams } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function CalculationsEditPage() {
     const [calculations, setCalculations] = useState<Calculation[]>([]);
     const [filteredCalculations, setFilteredCalculations] = useState<Calculation[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
+
+    const searchParams = useSearchParams()
 
     useEffect(() => {
         async function fetchData() {
@@ -33,6 +36,13 @@ export default function CalculationsEditPage() {
         }
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (searchParams.get('updated') === 'true') {
+            toast.success('Calculation updated successfully!')
+            window.history.replaceState(null, '', '/calculations')
+        }
+    }, [searchParams])
 
     useEffect(() => {
         const lowerQuery = searchQuery.toLowerCase();
@@ -70,7 +80,6 @@ export default function CalculationsEditPage() {
         <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto space-y-8">
 
-                {/* HEADER */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                     <div>
                         <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
@@ -95,7 +104,6 @@ export default function CalculationsEditPage() {
                     </div>
                 </div>
 
-                {/* TABLE CARD */}
                 <Card className="shadow-lg border border-gray-300 rounded-xl overflow-hidden bg-white">
                     <CardContent className="p-0">
                         {loading ? (
@@ -115,7 +123,6 @@ export default function CalculationsEditPage() {
                         ) : (
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
-                                    {/* Більш контрастний заголовок */}
                                     <thead>
                                         <tr className="bg-gray-100 border-b-2 border-gray-300 text-xs uppercase tracking-wider text-gray-700 font-bold">
                                             <th className="px-6 py-4 border-r border-gray-200">Title & Date</th>
@@ -130,13 +137,11 @@ export default function CalculationsEditPage() {
                                                 key={calc.id} 
                                                 className="group hover:bg-blue-50/50 transition-colors duration-200"
                                             >
-                                                {/* Title & Date Column */}
                                                 <td className="px-6 py-4 border-r border-gray-100">
                                                     <div className="flex flex-col gap-1">
                                                         <span className="text-base font-bold text-gray-900 group-hover:text-blue-700 transition-colors">
                                                             {calc.title}
                                                         </span>
-                                                        {/* ТУТ ЗАМІСТЬ ID ТЕПЕР ДАТА */}
                                                         <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
                                                             <Calendar className="w-3.5 h-3.5" />
                                                             {new Date(calc.createdAt).toLocaleDateString() + " " + new Date(calc.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
@@ -144,7 +149,6 @@ export default function CalculationsEditPage() {
                                                     </div>
                                                 </td>
 
-                                                {/* Material Column */}
                                                 <td className="px-6 py-4 border-r border-gray-100">
                                                     <div className="flex items-center gap-2">
                                                         <Layers className="w-4 h-4 text-blue-600" />
@@ -154,7 +158,6 @@ export default function CalculationsEditPage() {
                                                     </div>
                                                 </td>
 
-                                                {/* Dimensions Column (Ваша логіка) */}
                                                 <td className="px-6 py-4 border-r border-gray-100">
                                                     <div className="flex items-start gap-2 text-sm text-gray-700 font-medium">
                                                         <Ruler className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
@@ -169,7 +172,6 @@ export default function CalculationsEditPage() {
                                                     </div>
                                                 </td>
 
-                                                {/* Actions Column */}
                                                 <td className="px-6 py-4 text-center">
                                                     <div className="flex items-center justify-center gap-3">
                                                         <Link href={`/calculations/${calc.id}`}>
@@ -202,6 +204,7 @@ export default function CalculationsEditPage() {
                     </CardContent>
                 </Card>
             </div>
+            <ToastContainer />
         </div>
     );
 }

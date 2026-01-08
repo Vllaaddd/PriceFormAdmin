@@ -5,8 +5,9 @@ import { SelectField } from "@/components/select-field"
 import { box, CalculationForm, delivery, lochstanzlinge, rolls, skillet } from "@/constants/constatns"
 import { Api } from "@/services/api-client"
 import { Calculation, Period } from "@prisma/client"
+import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
-import { FormEvent, useEffect, useState } from "react"
+import { FormEvent, useEffect, useMemo, useState } from "react"
 import { toast, ToastContainer } from "react-toastify"
 
 export default function CalculationsEditPage(){
@@ -17,31 +18,37 @@ export default function CalculationsEditPage(){
 
     const router = useRouter();
 
+    const selectedRoll = rolls.find(r => r.name === form?.roll)
+    const selectedMaterial = selectedRoll?.materials.find(m => m.name === form?.material)
+
     useEffect(() => {
-        const fetchCalculation = async (id: number) => {
+        const fetchData = async (id: number) => {
             
             const calculation = await Api.calculations.getOneCalculation(id)
             setForm(calculation)
-
-        }
-
-        fetchCalculation(Number(id))
-    }, [])
-
-    useEffect(() => {
-        const fetchPeriods = async () => {
 
             const periods = await Api.periods.getAll()
             setPeriods(periods)
 
         }
 
-        fetchPeriods()
+        fetchData(Number(id))
     }, [])
 
+    const totalOrderInPallets = useMemo(() => {
+        if (form.totalOrderInRolls && form.cartonPerPallet && form.rollsPerCarton) {
+            return form.totalOrderInRolls / form.cartonPerPallet / form.rollsPerCarton;
+        }
+        return 0;
+    }, [form.totalOrderInRolls, form.cartonPerPallet, form.rollsPerCarton]);
 
-    const selectedRoll = rolls.find(r => r.name === form?.roll)
-    const selectedMaterial = selectedRoll?.materials.find(m => m.name === form?.material)
+    useEffect(() => {
+        if (form.deliveryConditions === "EXW" || form.deliveryConditions === "FCA") {
+            setForm(prev => ({ ...prev, deliveryAddress: "Singen" }))
+        } else if (form.deliveryConditions === "DDP" || form.deliveryConditions === "DAP") {
+            setForm(prev => ({ ...prev, deliveryAddress: "" }))
+        }
+    }, [form.deliveryConditions])
 
     const handleChange = (field: keyof Calculation, value: any) => {
         setForm(prev => prev ? { ...prev, [field]: value } : prev)
@@ -135,7 +142,7 @@ export default function CalculationsEditPage(){
         const skillet = await Api.skillets.find({
             width: roll !== 'BP' ? core.length : materialWidth || 0,
             height,
-            knife: skilletKnife === 'With knife' ? 'ja' : 'nein',
+            knife: skilletKnife || '',
             density: Number(skilletDensity)
         })
 
@@ -196,27 +203,25 @@ export default function CalculationsEditPage(){
         await Api.calculations.update(id, { ...cleanForm, ...props })
         setForm({})
         toast.success('Calculation edited!')
-        router.push('/calculations')
+        router.push('/calculations?updated=true')
     
     }
-
-    useEffect(() => {
-        if (form.totalOrderInRolls && form.cartonPerPallet && form.rollsPerCarton) {
-            const result = form.totalOrderInRolls / form.cartonPerPallet / form.rollsPerCarton
-            setForm(prev => ({ ...prev, totalOrderInPallets: result }))
-        }
-    }, [form.totalOrderInRolls, form.cartonPerPallet, form.rollsPerCarton])
-
-    useEffect(() => {
-        if (form.deliveryConditions === "EXW" || form.deliveryConditions === "FCA") {
-            setForm(prev => ({ ...prev, deliveryAddress: "Singen" }))
-        } else if (form.deliveryConditions === "DDP" || form.deliveryConditions === "DAP") {
-            setForm(prev => ({ ...prev, deliveryAddress: "" }))
-        }
-    }, [form.deliveryConditions])
     
     return(
         <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 py-10 px-6">
+
+            <div className="w-full max-w-2xl mx-auto mb-6">
+                <Link
+                    href="/calculations" 
+                    className="inline-flex items-center text-gray-600 hover:text-blue-600 transition-colors font-medium"
+                >
+                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to calculations
+                </Link>
+            </div>
+
             <form
                 className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-2xl mx-auto"
                 onSubmit={handleSubmit}
@@ -493,10 +498,10 @@ export default function CalculationsEditPage(){
                     <InputField label="Total order in rolls" type="number" value={form?.totalOrderInRolls || ""} onChange={(e) => handleChange("totalOrderInRolls", Number(e.target.value))} />
 
                     {/* Total order in pallets */}
-                    {form?.totalOrderInPallets !== undefined && (
+                    {totalOrderInPallets !== undefined && (
                         <div className="flex items-center justify-between gap-4 mt-2">
                             <p>Total order in pallets</p>
-                            <p>{form?.totalOrderInPallets}</p>
+                            <p>{totalOrderInPallets}</p>
                         </div>
                     )}
 

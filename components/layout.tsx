@@ -1,5 +1,6 @@
 'use client'
 
+import { ToastContainer } from "react-toastify";
 import { SidePanelClient } from "./side-panel-client";
 
 export default function LayoutClient({ children, geistSans, geistMono, session, isAdmin }: any) {

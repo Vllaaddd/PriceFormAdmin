@@ -42,6 +42,13 @@ export const deleteCore = async(id: string): Promise<Core> => {
 
 }
 
+export const deleteAllCores = async(): Promise<void> => {
+
+    const { data } = await axiosInstance.delete(`${ApiRoutes.CORES}`)
+
+    return data
+}
+
 export const find = async (filters: {
     length: number;
     type: string;
