@@ -179,14 +179,14 @@ export default function CalculationsEditPage(){
         let totalPrice = totalPricePerRoll * (totalOrderInRolls || 0);
         let margin = 0;
 
-        if(totalOrderInRolls && totalOrderInRolls <= 30000){
-            totalPrice = totalPrice + (totalPrice / 100 * 7)
+        if (totalOrderInRolls && totalOrderInRolls <= 30000) {
+            totalPrice = totalPrice * 1.07
             margin = 7
-        }else if(totalOrderInRolls && (totalOrderInRolls > 30000 && totalOrderInRolls <= 200000)){
-            totalPrice = totalPrice + (totalPrice / 100 * 5)
+        } else if (totalOrderInRolls && (totalOrderInRolls > 30000 && totalOrderInRolls <= 200000)) {
+            totalPrice = totalPrice * 1.05
             margin = 5
-        }else if(totalOrderInRolls && totalOrderInRolls > 200000){
-            totalPrice = totalPrice + (totalPrice / 100 * 3)
+        } else if (totalOrderInRolls && totalOrderInRolls > 200000) {
+            totalPrice = totalPrice * 1.03
             margin = 3
         }
 
