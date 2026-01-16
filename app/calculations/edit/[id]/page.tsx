@@ -164,7 +164,7 @@ export default function CalculationsEditPage(){
         })
 
         const umkartonName = umkarton.article;
-            let umkartonPrice = 0;
+        let umkartonPrice = 0;
 
         if(umkarton.deckel !== 'nein'){
             const deckelPrice = await Api.deckels.find({ article: umkarton.deckel })
@@ -190,7 +190,7 @@ export default function CalculationsEditPage(){
             margin = 3
         }
 
-        return { materialCost, WVPerRoll, skilletPrice, skillet: skilletName, corePrice, core: coreName, umkarton: umkartonName, umkartonPrice, totalPricePerRoll, totalPrice, margin, materialWeight, foliePricePerKg: Number(costPerKg), materialLength }
+        return { materialCost, WVPerRoll, skilletPrice, skillet: skilletName, corePrice, core: coreName, umkarton: umkartonName, umkartonPrice, totalPricePerRoll, totalPrice, margin, materialWeight, foliePricePerKg: Number(costPerKg), materialLength, totalOrderInPallets }
     }
 
     const handleSubmit = async (e: FormEvent) => {
